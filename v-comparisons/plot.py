@@ -103,7 +103,7 @@ def save_figure(fig, event, label):
 
 def create_output_folder(event):
     base_folder = Path(__file__).parent.parent / "_output_plots"
-    folder_name = f"{event['year']}_r{event['round_number']:02d}_{event['country_name'].lower()}"
+    folder_name = f"{event['year']}_r{event['round_number']:02d}_{event['country_name'].lower().replace(' ', '_')}"
     save_folder = base_folder / folder_name
 
     try:
