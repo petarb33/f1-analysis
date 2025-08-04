@@ -19,7 +19,7 @@ def main():
         event_info,
         plot_func=plot_sectors_time,
         title='Fastest Lap in Sectors - Sector Time',
-        label='fl_sectors_delta',
+        label='fl_sectors',
     )
     create_graph(
         session_data,
@@ -27,7 +27,7 @@ def main():
         event_info,
         plot_func=plot_sectors_delta,
         title='Fastest Lap in Sectors - Time Delta',
-        label='fl_sectors',
+        label='fl_sectors_delta',
     )
 
 
