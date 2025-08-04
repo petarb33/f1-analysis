@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def get_fastest_lap_sectors(session, drivers):
+def get_drivers_fastest_fl_sectors(session, drivers):
     fastest_sectors = {
         'Sector1Time': {'Time': float('inf'), 'Driver': 'VER'},
         'Sector2Time': {'Time': float('inf'), 'Driver': 'VER'},
@@ -23,7 +23,7 @@ def get_fastest_lap_sectors(session, drivers):
     return fastest_sectors
 
 
-def get_driver_deltas(session, drivers, fastest_sectors):
+def get_drivers_fl_sectors(session, drivers, fastest_sectors):
     sectors_data = {
         'Sector1Time': [],
         'Sector2Time': [],
@@ -54,7 +54,7 @@ def get_driver_deltas(session, drivers, fastest_sectors):
     return {i + 1: sector_dfs[sector] for i, sector in enumerate(sectors_data)}
 
 
-def get_fastest_sectors(session_data, drivers):
+def get_drivers_fastest_sectors(session_data, drivers):
     sectors_data = {
         'Sector1Time': [],
         'Sector2Time': [],

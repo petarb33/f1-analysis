@@ -1,5 +1,5 @@
 from fetch import get_data, get_input, get_event_info, get_drivers
-from process import get_fastest_lap_sectors, get_driver_deltas, get_fastest_sectors
+from process import get_drivers_fastest_fl_sectors, get_drivers_fastest_sectors, get_drivers_fl_sectors
 from plot import create_graph, plot_sectors_delta, plot_sectors_time
 
 
@@ -10,9 +10,9 @@ def main():
     event_info = get_event_info(session_data, event)
     drivers = get_drivers(session_data)
 
-    fastest_lap_sectors = get_fastest_lap_sectors(session_data, drivers)
-    fl_sectors_dict = get_driver_deltas(session_data, drivers, fastest_lap_sectors)
-    fastest_sectors_dict = get_fastest_sectors(session_data, drivers)
+    fastest_lap_sectors = get_drivers_fastest_fl_sectors(session_data, drivers)
+    fl_sectors_dict = get_drivers_fl_sectors(session_data, drivers, fastest_lap_sectors)
+    fastest_sectors_dict = get_drivers_fastest_sectors(session_data, drivers)
 
     create_graph(
         session_data,
