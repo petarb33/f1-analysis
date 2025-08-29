@@ -4,7 +4,12 @@ from fastf1.core import Session
 from fastf1.events import Event
 
 def get_input() -> tuple[str, int, list[str]]:
-    """Load the session config and return country and year"""
+    """
+    Load the session config.
+
+    Returns:
+        tuple[str, int, list[str]]: Country, year, and drivers to compare.
+    """
     config = load_session()
     return config['country'], config['year'], config['drivers'].split()
 
