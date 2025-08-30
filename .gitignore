@@ -1,3 +1,4 @@
 .vscode/
 __pycache__/
 _output_plots/
+**/session.json
