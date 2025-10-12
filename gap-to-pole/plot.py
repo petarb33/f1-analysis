@@ -6,6 +6,8 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from pathlib import Path
 
+SESSION_COLORS = {"Q1": "#b2df8a", "Q2": "#66c2a5", "Q3": "#1b7837"}
+
 def create_graph(quali_data, event_info, fig_width):
     """Creates and saves the graph."""
     fig, ax = plt.subplots(figsize=(fig_width, 10))
@@ -21,30 +23,27 @@ def plot_data(ax: Axes, quali_data: pd.DataFrame) -> None:
     """Plots the gap to pole position for each driver in a session"""
     max_width = 0
     for row in quali_data.itertuples():
-        session = row.Session
-        driver = row.Driver
-        delta = row.GapToPole
+        session = getattr(row, "Session", None)
+        driver = getattr(row, "Driver", None)
+        delta = getattr(row, "GapToPole", None)
 
-        if session == 'Q1':
-            color = '#b2df8a'
-        elif session == 'Q2':
-            color = '#66c2a5'
-        elif session == 'Q3':
-            color = '#1b7837'
+        if driver is None or delta is None or session is None:
+            continue
 
-        bar = ax.barh(driver, delta, left=0, color=color)
-            
+        color = SESSION_COLORS.get(session, "#888888")
+
+        bar = ax.barh(driver, delta, left=0, color=color)            
         rect = bar[0]
         width = rect.get_width()
         max_width = max(width, max_width)
 
         if delta == 0:
-            ax.bar_label(bar, labels=[convert_time(row.LapTime)], padding=3, color='white')
+            ax.bar_label(bar, labels=[convert_time(getattr(row, "LapTime"))], padding=3, color='white')
         else:
-            ax.bar_label(bar, labels=[f'+{row.GapToPole}'], padding=3,  color='white')
+            ax.bar_label(bar, labels=[f'+{delta}'], padding=3,  color='white')
         
     ax.invert_yaxis()
-    plt.xlim(0, max_width * 1.1)
+    ax.set_xlim(0, max_width * 1.1)
 
 
 def style_figure_and_axes(fig: Figure, ax: Axes) -> None:
@@ -67,28 +66,38 @@ def style_figure_and_axes(fig: Figure, ax: Axes) -> None:
 
 def add_figure_title(fig: Figure, event_info: Dict) -> None:
     """Adds a title to the figure with event information."""
+    round_number = event_info.get("round_number", "")
+    grand_prix = event_info.get("grand_prix", "")
+    year = event_info.get("year", "")
+
     fig.suptitle(
-        f'Round {event_info['round_number']} - {event_info['grand_prix']}'
-        f'{event_info['year']}\nQualifying - Gap To Pole',
-        color='white', y=0.937, fontsize=15
+        f'Round {round_number} - {grand_prix}'
+        f'{year}\nQualifying - Gap To Pole',
+        color='white',
+        y=0.937,
+        fontsize=15
     )
     
 def add_signature(ax: Axes) -> None:
     """Adds a signature to the plot"""
     ax.text(
-        1.01, -0.08, 'Petar B.',
+        1.01,
+        -0.08,
+        'Petar B.',
         verticalalignment='bottom',
         horizontalalignment='right',
         transform=ax.transAxes,
-        color='white', fontsize=10, alpha=0.7
+        color='white',
+        fontsize=10,
+        alpha=0.7
     )
     
 def add_legend(ax: Axes) -> None:
     """Adds a legend describing in what session is each lap done"""
     legend_patches = [
-        mpatches.Patch(color='#b2df8a', label='Q1 Lap'),
-        mpatches.Patch(color='#66c2a5', label='Q2 Lap'),
-        mpatches.Patch(color='#1b7837', label='Q3 Lap')
+        mpatches.Patch(color=SESSION_COLORS["Q1"], label="Q1 Lap"),
+        mpatches.Patch(color=SESSION_COLORS["Q2"], label="Q2 Lap"),
+        mpatches.Patch(color=SESSION_COLORS["Q3"], label="Q3 Lap"),
     ]
 
     ax.legend(
