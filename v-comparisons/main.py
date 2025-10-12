@@ -1,5 +1,5 @@
 from fetch import get_input, get_data, get_drivers, get_event_info
-from process import get_drivers_speeds
+from process import get_drivers_max_speeds, get_drivers_mean_speeds, get_drivers_min_speeds
 from plot import plot_speed_comparisons
 
 def main():
@@ -11,9 +11,9 @@ def main():
 
     event_info = get_event_info(session_data, event)
 
-    min_speeds, mean_speeds, max_speeds = get_drivers_speeds(
-        session_data, drivers
-    )
+    min_speeds = get_drivers_min_speeds(session_data)
+    max_speeds = get_drivers_max_speeds(session_data)
+    mean_speeds = get_drivers_mean_speeds(session_data)
 
     plot_speed_comparisons(
         session_data, min_speeds, mean_speeds, max_speeds, event_info
