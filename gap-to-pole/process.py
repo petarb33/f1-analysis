@@ -38,13 +38,14 @@ def extract_quali_laps(session_data: Session, drivers: List) -> pd.DataFrame:
 
             time = getattr(row, phase)
             if not pd.isna(time):
-                laptime = pd.Timedelta(time).total_seconds
+                laptime = pd.Timedelta(time).total_seconds()
                 quali_data.append({
                     'Driver': row.Abbreviation,
                     'LapTime': laptime,
                     'Session': phase,
                     'GapToPole': round(laptime - pole_laptime, 3)
                 })
+                break
 
     return pd.DataFrame(quali_data)
 
