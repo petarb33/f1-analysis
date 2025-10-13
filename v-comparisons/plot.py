@@ -2,6 +2,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 import fastf1
 import fastf1.plotting
@@ -12,12 +13,42 @@ def plot_speed_comparisons(
 ):
     colors = get_driver_colors(session_data)
     
+    plot_max_graph(max_speeds, colors, event)
+    plot_min_graph(min_speeds, colors, event)
+    plot_mean_graph(mean_speeds, colors, event)
     plot_min_max_graph(min_speeds, max_speeds, colors, event)
     plot_min_mean_max_graph(min_speeds, mean_speeds, max_speeds, colors, event)
 
 
 def get_driver_colors(session):
     return fastf1.plotting.get_driver_color_mapping(session, colormap='default')
+
+
+def plot_max_graph(max_speeds, colors, event):
+    fig, ax = plt.subplots(figsize=(10, 10))
+
+    barplot(ax, max_speeds, colors, 'Max Speed on the Fastest Lap')
+
+    style_figure(fig, ax, event, 'Max V on the Fastest Lap')
+    save_figure(fig, event, 'maxv')
+
+
+def plot_min_graph(min_speeds, colors, event):
+    fig, ax = plt.subplots(figsize=(10, 10))
+
+    barplot(ax, min_speeds, colors, 'Min Speed on the Fastest Lap')
+
+    style_figure(fig, ax, event, 'Min V on the Fastest Lap')
+    save_figure(fig, event, 'minv')
+
+
+def plot_mean_graph(mean_speeds, colors, event):
+    fig, ax = plt.subplots(figsize=(10, 10))
+
+    barplot(ax, mean_speeds, colors, 'Mean Speed on the Fastest Lap')
+
+    style_figure(fig, ax, event, 'Mean V on the Fastest Lap')
+    save_figure(fig, event, 'meanv')
 
 
 def plot_min_max_graph(min_speeds, max_speeds, colors, event):
@@ -45,7 +76,7 @@ def plot_min_mean_max_graph(min_speeds, mean_speeds, max_speeds, colors, event):
     save_figure(fig, event, "maxv_vs_meanv_vs_minv")
 
 
-def barplot(ax, df, colors, title):
+def barplot(ax, df, colors, title=None):
     sns.barplot(
         data=df, x='Driver', y='Speed',
         hue='Driver', palette=colors, ax=ax
@@ -56,12 +87,19 @@ def barplot(ax, df, colors, title):
 
     min_speed = df['Speed'].min()
     max_speed = df['Speed'].max()
-    ax.set_ylim(int(min_speed) - 1, int(max_speed) + 2)
+    ax.set_ylim(int(min_speed) - 1, int(max_speed) + 1)
 
-    ax.set_title(title, color='white', fontsize=10)
+    if title is not None:
+        ax.set_title(title, color='white', fontsize=10)
 
 def style_figure(fig, axs, event, title):
     fig.patch.set_facecolor('#292625')
+
+    if not isinstance(axs, list):
+        axs = [axs]
+
+    axs = np.ravel(axs)
+
     for ax in axs:
         ax.set_facecolor('#1e1c1b')
         ax.tick_params(
