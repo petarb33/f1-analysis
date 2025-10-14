@@ -9,7 +9,24 @@ from matplotlib.figure import Figure
 
 
 def create_graph(session_data: Session, event_info: dict) -> None:
-    """Creates and saves the position change graph."""
+    """
+    Create and save a line plot showing driver position changes over the race.
+
+    This function initializes the figure, plots each driver's position trace,
+    applies styling, adds metadata and signature, and saves the final output.
+
+    Parameters
+    ----------
+    session_data : fastf1.core.Session
+        Loaded session object containing lap-by-lap race data.
+    event_info : dict
+        Metadata dictionary containing event details such as round number,
+        grand prix name, year, session type, and country information.
+
+    Returns
+    -------
+    None
+    """
     fig, ax = plt.subplots(figsize=(20,10)) 
 
     plot_positions_change(session_data, ax)
@@ -20,7 +37,23 @@ def create_graph(session_data: Session, event_info: dict) -> None:
 
 
 def plot_positions_change(session_data: Session, ax: Axes) -> None:
-    """Plots the position changes for each driver in a session."""
+    """
+    Plot each driver's position change across laps in the given session.
+
+    Uses FastF1 styling to render a line for each driver showing their
+    position evolution throughout the race. Adds a styled legend to the axis.
+    
+    Parameters
+    ----------
+    session_data : fastf1.core.Session
+        Loaded session object containing lap data for all drivers
+    ax : matplotlib.axes.Axes
+        Axis object on which to draw the position changes.
+    
+    Returns
+    -------
+    None
+    """
     for driver in session_data.drivers:
         driver_laps = session_data.laps.pick_drivers(driver)
         abb = driver_laps['Driver'].iloc[0]
@@ -49,7 +82,21 @@ def plot_positions_change(session_data: Session, ax: Axes) -> None:
 
 
 def style_figure_and_axes(fig: Figure, ax: Axes) -> None:
-    """Appies a dark theme to figure and axes, and styles ticks and labels."""
+    """
+    Applies dark theme to figure and axis, sets labels, styles ticks
+    and removes spines.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure to style.
+    ax : matplotlib.axes.Axes
+        Axis to style.
+    
+    Returns
+    -------
+    None
+    """
     fig.patch.set_facecolor('#292625')
     ax.set_facecolor('#1e1c1b')
 
@@ -71,7 +118,19 @@ def style_figure_and_axes(fig: Figure, ax: Axes) -> None:
 
 
 def add_figure_title(fig: Figure, event_info: dict) -> None:
-    """Adds a title to the figure with event information."""
+    """
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure on which title will be displayed.
+    event_info : dict
+        Metadata dictionary with keys like 'round_number', 'grand_prix' and
+        'year' needed for the title.
+    
+    Returns
+    -------
+    None
+    """
     fig.suptitle(
         f'Round {event_info['round_number']} - {event_info['grand_prix']} '
         f'{event_info['year']}\n{event_info['session']} - Position Changes',
@@ -80,7 +139,18 @@ def add_figure_title(fig: Figure, event_info: dict) -> None:
 
 
 def add_signature(ax: Axes) -> None:
-    """Adds a signature to the plot."""
+    """
+    Adds little signature on the bottom right corner.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axis on which signature will be displayed.
+
+    Returns
+    -------
+    None
+    """
     ax.text(
         1.06, -0.08, 'Petar B.',
         verticalalignment='bottom',
@@ -91,7 +161,27 @@ def add_signature(ax: Axes) -> None:
 
 
 def save_figure(fig: Figure, event: dict) -> None:
-    """Saves the figure to a file in the appropriate output directory."""
+    """
+    Save the provided figure to the output directory with a descriptive filename.
+
+    The filename format is "{country_code}_{session}_position_changes.png".
+    This function creates the required output directory via create_output_folder()
+    and writes the PNG at 300 DPI.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure to save.
+    event : dict
+        Event metadata used to build the output filename. Required keys include
+        'country_code' and 'session'.
+    label : str
+        Label describing the type of the plot.
+
+    Returns
+    -------
+    None
+    """
     save_folder = create_output_folder(event)
 
     country_code = event['country_code'].lower()
@@ -105,7 +195,25 @@ def save_figure(fig: Figure, event: dict) -> None:
 
 
 def create_output_folder(event: dict) -> Path:
-    """Creates the directory structure for saving output plots."""
+    """
+    Ensure the local output directory exists and return its Path.
+
+    Builds a directory path under the repository (two levels up from this file)
+    named "_output_plots/{year}_r{round_number:02d}_{country_name}". Attempts
+    to create the directory if it does not already exist. If creation fails
+    the exception is printed and the attempted Path object is still returned.
+
+    Parameters
+    ----------
+    event : dict
+        Event metadata; expected keys include 'year', 'round_number', and
+        'country_name'.
+
+    Returns
+    -------
+    pathlib.Path
+        Path to the output folder (created if possible).
+    """
     base_folder = Path(__file__).parent.parent / "_output_plots"
     folder_name = f"{event['year']}_r{event['round_number']:02d}_{event['country_name'].lower()}"
     save_folder = base_folder / folder_name
