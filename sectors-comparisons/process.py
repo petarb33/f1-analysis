@@ -1,104 +1,175 @@
 import pandas as pd
 
+def get_fastest_sector_data(session, drivers):
+    """
+    Collect each driver's fastest sector times and corresponding deltas for a session.
 
-def get_drivers_fastest_fl_sectors(session, drivers):
-    fastest_sectors = {
-        'Sector1Time': {'Time': float('inf'), 'Driver': 'VER'},
-        'Sector2Time': {'Time': float('inf'), 'Driver': 'VER'},
-        'Sector3Time': {'Time': float('inf'), 'Driver': 'VER'}
+    Parameters
+    ----------
+    session : fastf1.core.Session
+        FastF1 session object containing session data.
+    drivers : list of str
+        List of driver abbreviations - drivers that participated in the session.
+
+    Returns
+    -------
+    tuple
+        A tuple (time_dict, delta_dict) where:
+        - time_dict : dict
+            Dictionary keyed by sector name ('Sector1Time', 'Sector2Time', 'Sector3Time').
+            Sorted by 'Time'.
+            Each value is a pandas.DataFrame with columns:
+            Driver : str
+                Driver abbreviation.
+            Time : float
+                Driver's fastest sector time in seconds.
+            Compound : object
+                Tyre compound used on the lap that produced the fastest sector.
+            Delta : float
+                Difference in seconds between the driver's fastest sector time
+                and the session's fastest sector time (leader has Delta = 0.0).
+        - delta_dict : dict
+            Dictionary keyed by sector name ('Sector1Time', 'Sector2Time', 'Sector3Time').
+            Sorted by 'Delta'.
+            Each value is a pandas.DataFrame with columns:
+            Driver : str
+                Driver abbreviation.
+            Time : float
+                Driver's fastest sector time in seconds.
+            Compound : object
+                Tyre compound used on the lap that produced the fastest sector.
+            Delta : float
+                Difference in seconds between the driver's fastest sector time
+                and the session's fastest sector time (leader has Delta = 0.0).
+    """
+    fastest_sectors = get_fastest_sectors(session)
+    time_dict, delta_dict = {}, {}
+    
+    for sector in ['Sector1Time','Sector2Time','Sector3Time']:
+        time_data_list = []
+        for driver in drivers:
+            time_data = get_driver_fastest_sector(session, driver, sector, fastest_sectors[sector])
+
+            time_data_list.append(time_data)
+    
+        time_df = pd.DataFrame(time_data_list).sort_values(by='Time').reset_index(drop=True)
+        delta_df = pd.DataFrame(time_data_list).sort_values(by='Delta').reset_index(drop=True)
+        
+        time_dict[sector] = time_df
+        delta_dict[sector] = delta_df
+
+    return time_dict, delta_dict
+
+def get_fastest_sectors(session):
+    """
+    Returns fastest time for each sector, which will be used to calculate delta.
+
+    Parameters
+    ----------
+    session : fastf1.core.Session
+        FastF1 session object containing session data.
+        The function reads sector times from session.laps and ignores missing values.
+    
+    Returns
+    -------
+    dict
+        Keys: 'Sector1Time' (float, seconds), 'Sector2Time' (float, seconds), 'Sector3Time' (float, seconds)
+        Description: Fastest sector time for each sector. 
+    """
+    laps = session.laps
+    return {
+        sector: laps[sector].dropna().min().total_seconds()
+        for sector in ['Sector1Time', 'Sector2Time', 'Sector3Time']
     }
+
+def get_driver_fastest_sector(session, driver, sector, fastest_sector_time):
+    """
+    Function returns drivers fastest sector time, delta to fastest
+    sector and tyre on which sector is driven.
+
+    Parameters
+    ----------
+    session : fastf1.core.Session
+        FastF1 session object containing session data.
+    driver : str
+        Driver abbreviation for the driver which sector times are taken.
+    sector : {'Sector1Time', 'Sector2Time', 'Sector3Time'}
+        Which sector is taken.
+    fastest_sector_time : float
+        Fastest sector time for the given sector.
+    
+    Returns
+    -------
+    dict
+        Keys: 'Driver' (str), 'Time' (float, seconds), 'Compound' (str)
+        Description: the driver's fastest sector time and tyre compound for that lap.
+    """
+    driver_laps = session.laps.pick_drivers(driver)
+    sector_times = driver_laps[sector].dropna()
+
+    if sector_times.empty or fastest_sector_time is None:
+        return None, None
+    
+    sector_time_obj = sector_times.min()
+    sector_time = sector_time_obj.total_seconds()
+    delta = sector_time - fastest_sector_time
+
+    sector_idx = sector_times.idxmin()
+    sector_compound = driver_laps.at[sector_idx, 'Compound']
+
+    return (
+        {'Driver': driver, 'Time': sector_time, 'Compound': sector_compound, 'Delta': delta}
+    )
+
+def get_fastest_lap_sectors(session, drivers):
+    """
+    Gather each driver's fastest-lap sector times and compute deltas to the sector leader.
+
+    Parameters
+    ----------
+    session : fastf1.core.Session
+        FastF1 session object containing session data.
+    drivers : list of str
+        List of driver abbreviations - drivers that participated in the session.
+
+    Returns
+    -------
+    sectors_dict : dict
+        Dictionary keyed by sector name ('Sector1Time', 'Sector2Time', 'Sector3Time').
+        Each value is a pandas.DataFrame with four columns:
+        Driver : str
+            Driver abbreviation.
+        Time : float
+            Fastest sector time for that driver in seconds.
+        Compound : object
+            Tyre compound value taken from the driver's fastest lap (type depends on session data).
+        Delta : float
+            Difference in seconds between the driver's sector time and the sector leader
+            (leader has Delta = 0.0).    
+    """
+    sectors = ['Sector1Time', 'Sector2Time', 'Sector3Time']
+    sectors_dict = {sector: [] for sector in sectors}
 
     for driver in drivers:
         fastest_lap = session.laps.pick_drivers(driver).pick_fastest()
 
-        if fastest_lap.empty:
-            continue
+        for sector in sectors:
+            sectors_dict[sector].append({
+                'Driver': driver,
+                'Time': fastest_lap[sector].total_seconds(),
+                'Compound': fastest_lap['Compound']
+            })
 
-        for sector in fastest_sectors:
-            time = fastest_lap[sector].total_seconds()
-            if time < fastest_sectors[sector]['Time']:
-                fastest_sectors[sector]['Time'] = time
-                fastest_sectors[sector]['Driver'] = driver
+    for sector in sectors:
+        df = pd.DataFrame(sectors_dict[sector]).sort_values(by='Time').reset_index(drop=True)
 
-    return fastest_sectors
-
-
-def get_drivers_fl_sectors(session, drivers, fastest_sectors):
-    sectors_data = {
-        'Sector1Time': [],
-        'Sector2Time': [],
-        'Sector3Time': []
-    }
-
-    for driver in drivers:
-        fastest_lap = session.laps.pick_drivers(driver).pick_fastest()
-
-        if fastest_lap.empty:
-            continue
-
-        for sector in ['Sector1Time', 'Sector2Time', 'Sector3Time']:
-            sector_time = fastest_lap[sector].total_seconds()
-            fastest_time = fastest_sectors[sector]['Time']
-            tyre = fastest_lap['Compound']
-            delta = sector_time - fastest_time
-
-            sectors_data[sector].append(
-                {'Driver': driver, 'Time': sector_time, 'Delta': delta, 'Tyre':tyre}
-            )
-
-    sector_dfs = {}
-    for sector, data in sectors_data.items():
-        df = pd.DataFrame(data).sort_values(by='Time').reset_index(drop=True)
-        sector_dfs[sector] = df
-    
-    return {i + 1: sector_dfs[sector] for i, sector in enumerate(sectors_data)}
-
-
-def get_drivers_fastest_sectors(session_data, drivers):
-    sectors_data = {
-        'Sector1Time': [],
-        'Sector2Time': [],
-        'Sector3Time': []
-    }
-    
-    fastest_s1 = session_data.laps['Sector1Time'].min().total_seconds()
-    fastest_s2 = session_data.laps['Sector2Time'].min().total_seconds()
-    fastest_s3 = session_data.laps['Sector3Time'].min().total_seconds()
-    fastest_sectors = {'Sector1Time': fastest_s1, 'Sector2Time': fastest_s2, 'Sector3Time': fastest_s3}
-
-    for driver in drivers:
-        drivers_laps = session_data.laps.pick_drivers(driver)
-
-        if drivers_laps.empty:
-            continue
-
-        for sector in ['Sector1Time', 'Sector2Time', 'Sector3Time']:
-            if drivers_laps[sector].isna().all():
-                continue
+        if not df.empty:
+            leader_time = df.loc[0, 'Time']
+            df['Delta'] = df['Time'] - leader_time
+        else:
+            df['Delta'] = pd.Series(dtype='float64')
             
-            sector_idx = drivers_laps[sector].idxmin()
-            sector_time = drivers_laps[sector].min().total_seconds()
-            sector_tyre = drivers_laps.at[sector_idx, 'Compound']
-            delta = sector_time - fastest_sectors[sector]
-            
-            if pd.notna(sector_time):
-                sectors_data[sector].append({
-                    'Driver': driver,
-                    'Time': sector_time,
-                    'Delta': delta,
-                    'Tyre': sector_tyre
-                })
+        sectors_dict[sector] = df
 
-    sector_dfs = {}
-    for sector, data in sectors_data.items():
-        df = pd.DataFrame(data).sort_values(by='Time').reset_index(drop=True)
-        sector_dfs[sector] = df
-    
-    return {i + 1: sector_dfs[sector] for i, sector in enumerate(sectors_data)}
+    return sectors_dict
 
-
-def is_valid_time(time):
-    return bool(time) and not pd.isna(time)
-
-
-    
