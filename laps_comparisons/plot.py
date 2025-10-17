@@ -40,13 +40,13 @@ def create_graph(
 
     used_tyres = get_used_tyres(stints)
     driver_styles = get_drivers_styles(drivers, session_data)
-    compound_colors, tyres_dict = get_compound_colors(session_data, used_tyres)
+    compound_colors = get_compound_colors(session_data, used_tyres)
 
     plot_stints(drivers, ax, stints, driver_styles, compound_colors)
     style_figure_and_ax(fig, ax, session_data.total_laps)
     add_figure_title(fig, event_info, drivers)
     add_signature(ax)
-    add_legend(ax, tyres_dict, driver_styles)
+    add_legend(ax, compound_colors, driver_styles)
     save_figure(fig, drivers, event_info)
 
 
@@ -127,17 +127,14 @@ def get_compound_colors(
 
     Returns
     -------
-    tuple
-        - compound_mapping : dict of str -> str
-            Mapping of compound name to FastF1 color.
-        - compound_colors : dict of str -> str
-            Mapping of used compound name to hex color.
+    compound_colors : dict of str -> str
+        Mapping of used compound name to hex color.
     """
     compound_colors = {tyre:None for tyre in used_tyres}
     for tyre in used_tyres:
         compound_colors[tyre] = fastf1.plotting.get_compound_color(tyre, session_data)
 
-    return fastf1.plotting.get_compound_mapping(session_data), compound_colors
+    return compound_colors
 
 
 def plot_stints(
