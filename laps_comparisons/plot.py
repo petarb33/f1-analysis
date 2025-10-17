@@ -15,7 +15,27 @@ def create_graph(
     event_info: dict[str, str | int],
     session_data: Session
 ) -> None:
-    """Main function to create and save a race stints graph."""
+    """
+    Create and save a race stints graph comparing multiple drivers.
+
+    This function handles plotting driver stints, styling the figure,
+    adding title, legend, signature, and saving the output image.
+
+    Parameters
+    ----------
+    drivers : list of str
+        List of driver abbreviations to compare.
+    stints : dict of str -> dict of int -> pd.DataFrame
+        Dictionary mapping driver to their stints (stint_number -> laps DataFrame).
+    event_info : dict
+        Metadata for the event. Expected keys: 'round_number', 'grand_prix', 'year', 'country_code', 'country_name'.
+    session_data : fastf1.core.Session
+        FastF1 session object containing race data.
+
+    Returns
+    -------
+    None
+    """
     fig, ax = plt.subplots(figsize=(15,10))
 
     used_tyres = get_used_tyres(stints)
@@ -34,7 +54,24 @@ def get_drivers_styles(
     drivers: list[str],
     session_data: Session
 ) -> dict[str, dict[str, str]]:
-    """Return driver styles with unique line styles for duplicate colors."""
+    """
+    Generate a dictionary of driver line styles and colors.
+
+    If two drivers have the same color, the second gets a dotted linestyle
+    to distinguish them visually.
+
+    Parameters
+    ----------
+    drivers : list of str
+        List of driver abbreviations.
+    session_data : fastf1.core.Session
+        FastF1 session object for color reference.
+
+    Returns
+    -------
+    dict of str -> dict
+        Maps driver abbreviation to a dictionary with keys 'color' and 'linestyle'.
+    """
     driver_styles, seen_colors = {}, set()
 
     for drv in drivers:
@@ -51,8 +88,20 @@ def get_drivers_styles(
     return driver_styles
 
 
-def get_used_tyres(stints: dict[str, pd.DataFrame]) -> list[str]:
-    """Return a list of all tyre compounds used in stints."""
+def get_used_tyres(stints: dict[str, dict[int, pd.DataFrame]]) -> list[str]:
+    """
+    Extract all tyre compounds used by drivers during the race.
+
+    Parameters
+    ----------
+    stints : dict of str -> dict of int -> pd.DataFrame
+        Dictionary mapping driver to their stints (stint_number -> laps DataFrame).
+
+    Returns
+    -------
+    list of str
+        List of all tyre compounds used by any driver.
+    """
     used_tyres = set()
     for drv_stints in stints.values():
         for stint in drv_stints.values():
@@ -66,7 +115,24 @@ def get_compound_colors(
     session_data: Session,
     used_tyres: list[str]
 ) -> tuple[dict[str, str], dict[str, str]]:
-    """Return compound color mappings for used tyres."""
+    """
+    Map tyre compounds to their respective colors.
+
+    Parameters
+    ----------
+    session_data : fastf1.core.Session
+        FastF1 session object with session data.
+    used_tyres : list of str
+        List of tyre compounds used in the race.
+
+    Returns
+    -------
+    tuple
+        - compound_mapping : dict of str -> str
+            Mapping of compound name to FastF1 color.
+        - compound_colors : dict of str -> str
+            Mapping of used compound name to hex color.
+    """
     compound_colors = {tyre:None for tyre in used_tyres}
     for tyre in used_tyres:
         compound_colors[tyre] = fastf1.plotting.get_compound_color(tyre, session_data)
@@ -81,7 +147,26 @@ def plot_stints(
     driver_colors: dict[str, str],
     compound_colors: dict[str, str]
 ) -> None:
-    """Plot stints with driver colors and tyre markers."""
+    """
+    Plot stints with driver colors and tyre markers.
+    
+    Parameters
+    ----------
+    drivers : list of str
+        List of drivers (drivers abbreviations) whose laps are compared.
+    ax : matplotlib.axes.Axes
+        Axes on which the comparison will be drawn.
+    stints : dict[str, dict[int, pd.DataFrame]]
+        Dictionary of driver to {stint_number -> laps DataFrame}.
+    drivers_colors : dict
+        Dictionary mapping driver to drivers hex code colors.
+    compound_colors : dict
+        Dictionary mapping compound names to their hex code colors.
+
+    Returns
+    -------
+    None 
+    """
     for drv in drivers:
         for stint_number in stints[drv].keys():
             stint = stints[drv][stint_number]
@@ -101,7 +186,22 @@ def plot_stints(
 
 
 def style_figure_and_ax(fig: Figure, ax: Axes, total_laps: int) -> None:
-    """Apply styling to figure and axes."""
+    """
+    Apply visual styling to the figure and axes for better readability.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure to style.
+    ax : matplotlib.axes.Axes
+        Axes to style.
+    total_laps : int
+        Total number of laps in the race.
+
+    Returns
+    -------
+    None
+    """
     fig.patch.set_facecolor('#292625')
     ax.set_facecolor('#1e1c1b')
 
@@ -134,7 +234,22 @@ def style_figure_and_ax(fig: Figure, ax: Axes, total_laps: int) -> None:
 
 
 def add_figure_title(fig: Figure, event_info: dict, drivers: list[str]) -> None:
-    """Add title to the figure."""
+    """
+    Add title to the figure.
+    
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure which will recieve the title.
+    event_info : dict
+        Metadata dict with information needed for the title.
+    drivers : list of str
+        Drivers whose laps are compared, that will be printed in the title.
+
+    Returns
+    -------
+    None
+    """
     fig.suptitle(
         f'Round {event_info['round_number']} - {event_info['grand_prix']} '
         f'{event_info['year']}\n{' vs '.join(drivers)}',
@@ -147,7 +262,22 @@ def add_legend(
     used_tyres: dict[str, str],
     drivers_styles: dict[str, dict[str, str]]
 ) -> None:
-    """Add legends for tyres and drivers."""
+    """
+    Add legends for tyres and drivers.
+    
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes which will recieve the legend.
+    used_tyres : dict
+        Dictionary mapping tyres names to their hex code colors.
+    drivers_styles : dict
+        Dictionary mapping drivers abbreviations to their colors and line styles.
+    
+    Returns
+    -------
+    None
+    """
     tyres_handles = [
         mlines.Line2D([], [], color=tyre_color, marker='o',
                       linestyle=None, markersize=10, label=tyre_name)
@@ -175,7 +305,18 @@ def add_legend(
 
 
 def add_signature(ax: Axes) -> None:
-    """Add signature to the graph."""
+    """
+    Adds signature to the bottom right corner of the given axes.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes that will get the signature.
+    
+    Returns
+    -------
+    None
+    """
     ax.text(
         1.01, -0.08, 'Petar B.',
         verticalalignment='bottom',
@@ -186,7 +327,27 @@ def add_signature(ax: Axes) -> None:
 
 
 def save_figure(fig: Figure, drivers: list[str], event: dict) -> None:
-    """Saves the figure to a file in the appropriate output directory."""
+    """
+    Save the provided figure to the output directory with a descriptive filename.
+
+    The filename format is "{country_code}_{'vs'.join(drivers)}.png".
+    This function creates the required output directory via create_output_folder()
+    and writes the PNG at 300 DPI.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure to save.
+    event : dict
+        Event metadata used to build the output filename. Required keys include
+        'country_code' and 'session'.
+    drivers : list of str
+        List of drivers whose laps are compared.
+
+    Returns
+    -------
+    None
+    """
     save_folder = create_output_folder(event)
 
     country_code = event['country_code'].lower()
@@ -194,12 +355,30 @@ def save_figure(fig: Figure, drivers: list[str], event: dict) -> None:
     filename = f"{country_code}_{'vs'.join(drivers)}.png"
     filepath = save_folder / filename
 
-    fig.savefig(filepath, format='png', dpi=400)
+    fig.savefig(filepath, format='png', dpi=300)
     print(f"Figure saved to: {filepath}")
 
 
 def create_output_folder(event: dict) -> Path:
-    """Creates the directory structure for saving output plots."""
+    """
+    Ensure the local output directory exists and return its Path.
+
+    Builds a directory path under the repository (two levels up from this file)
+    named "_output_plots/{year}_r{round_number:02d}_{country_name}". Attempts
+    to create the directory if it does not already exist. If creation fails
+    the exception is printed and the attempted Path object is still returned.
+
+    Parameters
+    ----------
+    event : dict
+        Event metadata; expected keys include 'year', 'round_number', and
+        'country_name'.
+
+    Returns
+    -------
+    pathlib.Path
+        Path to the output folder (created if possible).
+    """
     base_folder = Path(__file__).parent.parent / "_output_plots"
     folder_name = f"{event['year']}_r{event['round_number']:02d}_{event['country_name'].lower()}"
     save_folder = base_folder / folder_name
