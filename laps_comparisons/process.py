@@ -5,12 +5,17 @@ def pick_quicklaps(session_data: Session, drivers: list[str]) -> dict[str, pd.Da
     """
     Pick quick laps for each driver.
 
-    Args:
-        session_data: FastF1 session data object.
-        drivers: List of driver identifiers.
+    Parameters
+    ----------
+    session_data : fastf1.core.Session
+        FastF1 session object with session data.
+    drivers : list of str
+        List of drivers (driver abbreviation) whose laps will be picked.
 
-    Returns:
-        Dictionary mapping driver -> DataFrame of quick laps.
+    Returns
+    -------
+    dict
+        Dictionary mapping driver to DataFrame of quick laps.
     """
     laps = {drv:pd.DataFrame() for drv in drivers}
 
@@ -28,11 +33,13 @@ def pick_racelaps(session_data: Session, drivers: list[str]) -> dict[str, pd.Dat
     safety car, and VSC laps. Also fills missing lap times.
 
     Args:
-        session_data: FastF1 session data object.
-        drivers: List of driver identifiers.
+    session_data : fastf1.core.Session
+        FastF1 session object with session data.
+    drivers : list of str
+        List of drivers (driver abbreviation) whose laps will be picked.
 
     Returns:
-        Dictionary mapping driver -> DataFrame of race laps.
+        Dictionary mapping driver to DataFrame of race laps.
     """
     laps = {drv:pd.DataFrame() for drv in drivers}
 
@@ -54,10 +61,12 @@ def fill_missing_laps(laps):
     """
     Fill missing lap times from sector times if all sectors are valid.
 
-    Args:
+    Parameters
+    ----------
         laps: DataFrame of laps.
 
-    Returns:
+    Returns
+    -------
         DataFrame with missing LapTime (s) filled where possible.
     """
     for index, lap in laps.iterrows():
@@ -78,11 +87,14 @@ def create_stints(laps: dict[str, pd.DataFrame]) -> dict[str, dict[int, pd.DataF
     """
     Create stints (groups of laps per driver and stint number).
 
-    Args:
-        laps: Dictionary mapping driver -> laps DataFrame.
+    Parameters
+    ----------
+    laps : pd.DataFrame
+        Dictionary mapping driver to laps DataFrame.
 
-    Returns:
-        Dictionary of driver -> {stint_number -> laps DataFrame}.
+    Returns
+    -------
+        Dictionary of driver to {stint_number -> laps DataFrame}.
     """
     stints = {}
 
