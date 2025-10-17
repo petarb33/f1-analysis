@@ -20,7 +20,7 @@ def pick_quicklaps(session_data: Session, drivers: list[str]) -> dict[str, pd.Da
     laps = {drv:pd.DataFrame() for drv in drivers}
 
     for driver in drivers:
-        quick_laps = session_data.laps.pick_drivers(driver).pick_quicklaps(1.1)
+        quick_laps = session_data.laps.pick_drivers(driver).pick_wo_box().pick_quicklaps()
         quick_laps['LapTime (s)'] = quick_laps['LapTime'].dt.total_seconds()
         laps[driver] = quick_laps.reset_index(drop=True)
     
