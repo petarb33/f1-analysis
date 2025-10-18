@@ -3,8 +3,8 @@ from process import extract_quali_laps
 from plot import create_graph
 
 def main():
-    country, year = get_input()
-    session_data, event = get_data(country, year)
+    country, year, sprint = get_input()
+    session_data, event = get_data(country, year, sprint)
     event_info = get_event_info(session_data, event)
     drivers = get_drivers(session_data)
     quali_data = extract_quali_laps(session_data, drivers)

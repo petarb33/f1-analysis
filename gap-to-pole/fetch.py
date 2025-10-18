@@ -21,7 +21,7 @@ def get_input() -> Tuple[str, int]:
             The year of the event.
     """
     config = load_session()
-    return config['country'], config['year']
+    return config['country'], config['year'], config['sprint']
 
 def load_session() -> Dict[str, int]:
     """
@@ -45,7 +45,7 @@ def load_session() -> Dict[str, int]:
     with open(file_path, 'r') as f:
         return json.load(f)
 
-def get_data(country: str, year: int) -> Tuple[Session, Event]:
+def get_data(country: str, year: int, sprint: bool) -> Tuple[Session, Event]:
     """
     Fetch and load FastF1 session and event data for given input.
 
@@ -68,7 +68,8 @@ def get_data(country: str, year: int) -> Tuple[Session, Event]:
         - event : fastf1.events.Event
             Event object.
     """
-    session_data = fastf1.get_session(year, country, 'Qualifying')
+    session = 'Sprint Qualifying' if sprint else 'Qualifying'
+    session_data = fastf1.get_session(year, country, session)
     session_data.load()
     event = fastf1.get_event(year, country)
 
@@ -110,7 +111,7 @@ def get_event_info(session_data: Session, event: Event) -> Dict[str, str | int]:
         'country_name' : session_data.session_info['Meeting']['Country']['Name'],
         'country_code' : session_data.session_info['Meeting']['Country']['Code'],
         'round_number' : event['RoundNumber'],
-        'session' : session_data.session_info['Type'],
+        'session' : session_data.session_info['Name'],
         'year' : session_data.session_info['StartDate'].year
     }
 
