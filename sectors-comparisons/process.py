@@ -152,6 +152,9 @@ def get_fastest_lap_sectors(session, drivers):
 
     for driver in drivers:
         fastest_lap = session.laps.pick_drivers(driver).pick_fastest()
+        
+        if fastest_lap is None or pd.isna(fastest_lap['LapTime']):
+            continue
 
         for sector in sectors:
             sectors_dict[sector].append({
