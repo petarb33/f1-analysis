@@ -20,21 +20,21 @@ def get_laps(race_data: Session) -> list[pd.DataFrame, pd.DataFrame, pd.DataFram
         DataFrame with columns ['Driver', 'LapTime (s)'] containing mean lap times,
         rounded to 3 decimals and sorted ascending by time.
     """
-    laps = race_data.laps.pick_wo_box().copy()
+    laps = race_data.laps.pick_wo_box()
 
+    excluded_status = {'R', 'W', 'N', 'F', 'E', 'D'}
     race_results = race_data.results['ClassifiedPosition']
-    race_results = race_results[
-        race_results.apply(lambda x: x not in {'R', 'W', 'N', 'F', 'E', 'D'})
-    ]
+    race_results = race_results[~race_results.isin(excluded_status)]
 
     transformed_laps = laps.copy()
-    transformed_laps['LapTime (s)'] = laps['LapTime'].dt.total_seconds()
+    transformed_laps['LapTime (s)'] = transformed_laps['LapTime'].dt.total_seconds()
 
     transformed_laps = fill_missing_laps(transformed_laps)
 
     transformed_laps = transformed_laps[
         ~transformed_laps['TrackStatus'].str.contains(r'[4567]', na=False)
     ]
+
     transformed_laps = transformed_laps[
         transformed_laps['DriverNumber'].isin(race_results.index)
         & transformed_laps['LapTime (s)'].notna()
@@ -48,11 +48,10 @@ def get_laps(race_data: Session) -> list[pd.DataFrame, pd.DataFrame, pd.DataFram
     )
 
     drivers_mean_laptimes = (
-        transformed_laps.groupby('Driver')['LapTime (s)']
+        transformed_laps.groupby('Driver', as_index=False)['LapTime (s)']
         .mean()
         .round(3)
-        .sort_values()
-        .reset_index()
+        .sort_values(by='LapTime (s)')
     )
 
     return transformed_laps, drivers_order, drivers_mean_laptimes
