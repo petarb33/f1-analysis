@@ -2,8 +2,25 @@ import pandas as pd
 from fastf1.core import Session
 
 def get_laps(race_data: Session) -> list[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Extract, clean and transform race laps data"""
-    laps = race_data.laps.pick_wo_box()
+    """
+    Extract, clean, and transform race laps data.
+
+    Parameters
+    ----------
+    race_data : Session
+        Session object containing `.laps` (with method `pick_wo_box`) and `.results`.
+
+    Returns
+    -------
+    transformed_laps : pd.DataFrame
+        Cleaned laps DataFrame with a numeric column 'LapTime (s)'.
+    drivers_order : pd.Index
+        Driver names ordered by ascending mean lap time.
+    drivers_mean_laptimes : pd.DataFrame
+        DataFrame with columns ['Driver', 'LapTime (s)'] containing mean lap times,
+        rounded to 3 decimals and sorted ascending by time.
+    """
+    laps = race_data.laps.pick_wo_box().copy()
 
     race_results = race_data.results['ClassifiedPosition']
     race_results = race_results[
@@ -41,7 +58,17 @@ def get_laps(race_data: Session) -> list[pd.DataFrame, pd.DataFrame, pd.DataFram
     return transformed_laps, drivers_order, drivers_mean_laptimes
 
 def fill_missing_laps(laps: pd.DataFrame) -> pd.DataFrame:
-    """Fill missing lap times using sector times if possible"""
+    """
+    Fill missing lap times from sector times if all sectors are valid.
+
+    Parameters
+    ----------
+        laps: DataFrame of laps.
+
+    Returns
+    -------
+        DataFrame with missing LapTime (s) filled where possible.
+    """
     for index, lap in laps.iterrows():
         if pd.isna(lap['LapTime']):
             s1, s2, s3 = lap['Sector1Time'], lap['Sector2Time'], lap['Sector3Time']
@@ -55,7 +82,30 @@ def fill_missing_laps(laps: pd.DataFrame) -> pd.DataFrame:
     return laps
 
 def get_stints(race_data: Session) -> pd.DataFrame:
-    """Return a DataFrame with stint information for each driver."""
+    """
+    Group laps by driver, stint, and compound to calculate stint lengths.
+
+    This function extracts relevant columns from the session's laps data and groups
+    them by `Driver`, `Stint`, and `Compound` to determine the length of each stint
+    (i.e., the number of laps completed in that stint on that compound).
+
+    Parameters
+    ----------
+    race_data : Session
+        Session object containing:
+        - `.laps` : pandas.DataFrame with lap information (must include columns
+          'Driver', 'Stint', 'Compound', 'LapNumber').
+
+    Returns
+    -------
+    stints : pandas.DataFrame
+        DataFrame with one row per unique (Driver, Stint, Compound) and the
+        following columns:
+        - ``Driver`` : str - Driver abbreviation.
+        - ``Stint`` : int - Stint number.
+        - ``Compound`` : str - Tyre compound used during the stint.
+        - ``StintLength`` : int - Number of laps in the stint.
+    """
     stints = race_data.laps[['Driver','Stint','Compound','LapNumber']]
     
     stints = (
