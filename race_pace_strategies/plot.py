@@ -20,7 +20,37 @@ def create_multi_graph(
     drivers: list[str],
     event_info: dict[str, str | int]
 ) -> None:
-    """Creates a graph with 2 axes, one for pace and one for stints."""
+    """
+    Create a combined visualization of race pace and driver strategies.
+
+    This function generates a two-panel figure:
+      - The top subplot shows a boxplot of drivers' lap times (race pace),
+        sorted by mean lap time.
+      - The bottom subplot shows each driver's stints as horizontal bars,
+        colored by tyre compound to represent race strategy.
+
+    Parameters
+    ----------
+    race_data : fastf1.core.Session
+        FastF1 session object containing race information.
+    laps : pd.DataFrame
+        Laps dataframe with all drivers laps.
+    stints : pd.DataFrame
+        DataFrame with stints that will be plotted
+    drivers_order : pd.DataFrame
+        DataFrame that represents order of drivers mean lap times.
+    drivers_colors : dict[str, str]
+        Drivers colors for the boxplot.
+    drivers : list[str]
+        List of driver identifiers (e.g., 'VER', 'HAM', 'NOR') whose
+        stints will be plotted.
+    event_info : dict[str, str | int]
+        Metadata dictionary with event information.
+
+    Returns
+    -------
+    None
+    """
     fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(10, 10), gridspec_kw={'height_ratios': [1.3, 1]})
 
     plot_laps(laps, drivers_order, axs[0], drivers_colors)
@@ -40,7 +70,24 @@ def create_pace_graph(
     drivers_colors: dict[str, str],
     event_info: dict[str, str | int]
 ) -> None:
-    """Creates only pace graph."""
+    """
+    Create and style a graph that represents drivers race pace.
+
+    Parameters
+    ----------
+    laps : pd.DataFrame
+        Laps dataframe with all drivers laps.
+    drivers_order : pd.DataFrame
+        DataFrame that represents order of drivers mean lap times.
+    drivers_colors : dict[str, str]
+        Drivers colors for the boxplot.
+    event_info : dict[str, str | int]
+        Metadata dictionary with event information.
+
+    Returns
+    -------
+    None
+    """
     fig, ax = plt.subplots(figsize=(15, 10))
 
     plot_laps(laps, drivers_order, ax, drivers_colors)
@@ -58,7 +105,25 @@ def create_stints_graph(
     drivers: list[str],
     event_info: dict[str, str | int]
 ) -> None:
-    """Creates only stints graph."""
+    """
+    Create and style a graph that represent drivers strategies.
+
+    Parameters
+    ----------
+    race_data : fastf1.core.Session
+        FastF1 session object containing race data and metadata.
+    stints : pd.DataFrame
+        DataFrame with stints that will be plotted.
+    drivers : list[str]
+        List of driver identifiers (e.g., 'VER', 'HAM', 'NOR') whose
+        stints will be plotted.
+    event_info : dict[str, str | int]
+        Metadata dictionary with event information.
+
+    Returns
+    -------
+    None
+    """
     fig, ax = plt.subplots(figsize=(10, 10))
 
     plot_stints(race_data, stints, drivers, ax)
@@ -74,7 +139,24 @@ def plot_laps(
     ax: Axes,
     drivers_colors: dict[str, str | int]
 ) -> None:
-    """Plot laps using boxplot to show drivers pace"""
+    """
+    Plot laps with boxplot to represent drivers pace.
+
+    Parameters
+    ----------
+    laps : pd.DataFrame
+        Laps dataframe with all drivers laps.
+    drivers_order : pd.DataFrame
+        DataFrame that represents order of drivers mean lap times.
+    ax : matplotlib.axes.Axes
+        Matplotlib Axes object where boxplot will be drawn.
+    drivers_colors : dict[str, str]
+        Drivers colors for the boxplot.
+    
+    Returns
+    -------
+    None
+    """
     data = [laps.loc[laps['Driver'] == driver, 'LapTime (s)'].values
             for driver in drivers_order]
     drv_colors = [drivers_colors[drv] for drv in drivers_order]
@@ -102,7 +184,29 @@ def plot_stints(
     drivers: list[str],
     ax: Axes
 ) -> None:
-    """Plot stints to show drivers strategies"""
+    """
+    Plot driver stints to visualize race strategies.
+
+    Each horizontal bar represents a stint for a driver, where the
+    width corresponds to the number of laps in that stint and the
+    color indicates the tyre compound used.
+
+    Parameters
+    ----------
+    race_data : fastf1.core.Session
+        FastF1 session object containing race data and metadata.
+    stints : pd.DataFrame
+        DataFrame with stints that will be plotted.
+    drivers : list[str]
+        List of driver identifiers (e.g., 'VER', 'HAM', 'NOR') whose
+        stints will be plotted.
+    ax : matplotlib.axes.Axes
+        Matplotlib Axes object where the stints will be drawn.
+    
+    Returns
+    -------
+    None
+    """
     for driver in drivers:
         driver_stints = stints.loc[stints['Driver'] == driver]
 
@@ -127,6 +231,20 @@ def plot_stints(
 
 
 def style_fig_and_axs(fig: Figure, axs: Axes | list[Axes]) -> None:
+    """
+    Apply a consistent dark style to a Matplotlib figure and its axes.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure object to be styled.
+    axs : matplotlib.axes.Axes or list[matplotlib.axes.Axes]
+        Single Axes instance or list of Axes to apply the style to.
+
+    Returns
+    -------
+    None
+    """
     fig.patch.set_facecolor('#292625')
 
     if isinstance(axs, Axes):
@@ -142,10 +260,36 @@ def style_fig_and_axs(fig: Figure, axs: Axes | list[Axes]) -> None:
         
 
 def add_ylabel(ax: Axes):
+    """
+    Sets axes Y label to 'LapTime (s)'
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes which will get the Y label change.
+    
+    Returns
+    -------
+    None
+    """
     ax.set_ylabel('LapTime (s)', color='white', fontsize=10)
 
 
 def add_figure_title(fig: Figure, event_info: dict[str, str | int]) -> None:
+    """
+    Add figure title to given figure.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure which will recieve the title.
+    event_info : dict
+        Metadata with event information, needed for the title.
+
+    Returns
+    -------
+    None
+    """
     fig.suptitle(
         f'Round {event_info['round_number']} - '
         f'{event_info['grand_prix']} {event_info['year']}\n',
@@ -155,10 +299,36 @@ def add_figure_title(fig: Figure, event_info: dict[str, str | int]) -> None:
 
 
 def add_ax_title(ax: Axes, title: str) -> None:
+    """
+    Add title to given axes.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes which will recieve the title.
+    title : str
+        Title that will be put.
+
+    Returns
+    -------
+    None
+    """
     ax.set_title(title, color='white')
 
 
 def add_signature(ax: Axes) -> None:
+    """
+    Adds signature on given axes.
+
+    Parameters
+    ----------
+    ax : Axes
+        Axes on which will signature be written on
+    
+    Returns
+    -------
+    None
+    """
     ax.text(
         1.06, -0.1, 'Petar B.',
         verticalalignment='bottom', horizontalalignment='right',
@@ -168,7 +338,27 @@ def add_signature(ax: Axes) -> None:
 
 
 def save_figure(fig: Figure, event: dict, suffix: str) -> None:
-    """Saves the figure to a file in the appropriate output directory."""
+    """
+    Save the provided figure to the output directory with a descriptive filename.
+
+    The filename format is "{country_code}_{suffix}.png".
+    This function creates the required output directory via create_output_folder()
+    and writes the PNG at 300 DPI.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure to save.
+    event : dict
+        Event metadata used to build the output filename. Required keys include
+        'country_code' and 'session'.
+    label : str
+        Label describing the type of the plot.
+
+    Returns
+    -------
+    None
+    """
     save_folder = create_output_folder(event)
 
     country_code = event['country_code'].lower()
@@ -181,7 +371,25 @@ def save_figure(fig: Figure, event: dict, suffix: str) -> None:
 
 
 def create_output_folder(event: dict) -> Path:
-    """Creates the directory structure for saving output plots."""
+    """
+    Ensure the local output directory exists and return its Path.
+
+    Builds a directory path under the repository (two levels up from this file)
+    named "_output_plots/{year}_r{round_number:02d}_{country_name}". Attempts
+    to create the directory if it does not already exist. If creation fails
+    the exception is printed and the attempted Path object is still returned.
+
+    Parameters
+    ----------
+    event : dict
+        Event metadata; expected keys include 'year', 'round_number', and
+        'country_name'.
+
+    Returns
+    -------
+    pathlib.Path
+        Path to the output folder (created if possible).
+    """
     base_folder = Path(__file__).parent.parent / "_output_plots"
     folder_name = f"{event['year']}_r{event['round_number']:02d}_{event['country_name'].lower()}"
     save_folder = base_folder / folder_name
