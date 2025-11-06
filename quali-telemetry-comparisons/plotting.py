@@ -12,10 +12,6 @@ import fastf1.utils as utils
 import fastf1.plotting
 
 
-# ==============================
-#        MAIN GRAPH MAKERS
-# ==============================
-
 def create_full_graphs(session_data: Session, car_data: CarDataEntry,
                        event_info: dict[str, str | int]) -> None:
     """ 
@@ -261,10 +257,6 @@ def plot_corners_vlines(session_data: Session, ax: Axes) -> None:
                 color='white')
 
 
-# ==============================
-#        STYLING HELPERS
-# ==============================
-
 def style_figure_and_axes(fig: Figure, axs: Iterable[Axes]) -> None:
     """
     Style the given figure and axes according to their telemetry plots.
@@ -346,6 +338,7 @@ def set_dark_background(fig: Figure, ax: Axes) -> None:
     """
     fig.patch.set_facecolor('#292625')
     ax.set_facecolor('#121212')
+
 
 def add_figure_title(fig: Figure, drv_a_data: dict[str, Any],
                      drv_b_data: dict[str, Any],
@@ -431,6 +424,7 @@ def add_signature(fig: Figure) -> None:
     fig.text(0.95, 0.05, 'Petar B.',
              verticalalignment='bottom', horizontalalignment='right',
              color='white', fontsize=10, alpha=0.7)
+
 
 def get_driver_combinations(car_data: CarDataEntry) -> list[tuple[str, str]]:
     """
