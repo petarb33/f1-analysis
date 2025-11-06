@@ -116,10 +116,35 @@ def create_delta_graphs(session_data: Session, car_data: CarDataEntry,
 
         save_delta_figure(fig, event_info, [drv_a, drv_b])
 
+def create_figure_with_subplots(figsize: Iterable, height_ratios: Iterable) -> tuple[Figure, list[Axes]] :
+    """
+    Create a Matplotlib figure with vertically stacked subplots using GridSpec.
 
-# ==============================
-#        PLOTTING HELPERS
-# ==============================
+    This function generates a figure of the specified size and creates subplots
+    arranged in a single column with customizable height ratios. It also adjusts
+    the vertical spacing between subplots.
+
+    Parameters
+    ----------
+    figsize : Iterable
+        Figure size as (width, height) in inches.
+    height_ratios : Iterable
+        List or tuple of relative heights for each subplot. The length of this
+        iterable determines the number of subplots.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The created Matplotlib figure.
+    axs : list[matplotlib.axes.Axes]
+        List of subplot Axes objects in top-to-bottom order.
+    """
+    fig = plt.figure(figsize=figsize)
+    fig.subplots_adjust(hspace=0.4)
+    gs = gridspec.GridSpec(len(height_ratios), 1, height_ratios=height_ratios)
+    axs = [fig.add_subplot(gs[i]) for i in range(len(height_ratios))]
+
+    return fig, axs
 
 def create_plots(axs: Iterable[Axes], drv_a: str, drv_b: str,
                  car_data: CarDataEntry, drivers_colors: dict[str, str]) -> None:
@@ -322,10 +347,90 @@ def set_dark_background(fig: Figure, ax: Axes) -> None:
     fig.patch.set_facecolor('#292625')
     ax.set_facecolor('#121212')
 
+def add_figure_title(fig: Figure, drv_a_data: dict[str, Any],
+                     drv_b_data: dict[str, Any],
+                     event_info: dict[str, str | int]) -> None:
+    """
+    Add a formatted title to the figure containing event and driver information.
 
-# ==============================
-#        UTILS
-# ==============================
+    The title summarizes the race or qualifying session, showing the round number,
+    Grand Prix name, year, session type, and both drivers' lap details, positions,
+    and lap times.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        The figure to which the title will be added.
+    drv_a_data : dict[str, Any]
+        Dictionary containing data for the first driver, including keys such as
+        'lap', 'quali_phase', 'position', and 'laptime'.
+    drv_b_data : dict[str, Any]
+        Dictionary containing data for the second driver with the same structure
+        as ``drv_a_data``.
+    event_info : dict[str, str | int]
+        Dictionary containing event metadata such as 'round_number',
+        'grand_prix', 'year', and 'session'.
+
+    Returns
+    -------
+    None
+    """
+    fig.suptitle(
+        f"Round {event_info['round_number']} - {event_info['grand_prix']} {event_info['year']}\n"
+        f"{event_info['session']} - {drv_a_data['lap'].iloc[1]} vs {drv_b_data['lap'].iloc[1]}\n"
+        f"({drv_a_data['quali_phase']}) (P{drv_a_data['position']}) {drv_a_data['laptime']} vs "
+        f"({drv_b_data['quali_phase']}) (P{drv_b_data['position']}) {drv_b_data['laptime']}",
+        y=0.95, color='white', fontsize=13
+    )
+
+
+def add_legend(fig: Figure, ax: Axes) -> None:
+    """
+    Add a styled legend to the given figure.
+
+    This function creates a legend for the provided figure using the labels
+    from the specified Axes. The legend is styled for dark backgrounds with
+    white text and a dark frame.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure to which the legend will be added.
+    ax : matplotlib.axes.Axes
+        Axes object used to extract legend handles and labels.
+
+    Returns
+    -------
+    None
+    """
+    handles, labels = ax.get_legend_handles_labels()
+    legend = fig.legend(
+        handles=handles,
+        labels=labels,
+        fontsize=15,
+        bbox_to_anchor=(0.61, 0.67, 0.3, 0.3)
+    )
+    for text in legend.get_texts():
+        text.set_color('white')
+    legend.get_frame().set_facecolor('#121212')
+
+
+def add_signature(fig: Figure) -> None:
+    """
+    Add a signature to the given figure.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure which will get the signature.
+    
+    Returns
+    -------
+    None
+    """
+    fig.text(0.95, 0.05, 'Petar B.',
+             verticalalignment='bottom', horizontalalignment='right',
+             color='white', fontsize=10, alpha=0.7)
 
 def get_driver_combinations(car_data: CarDataEntry) -> list[tuple[str, str]]:
     """
@@ -441,10 +546,6 @@ def lighten_color(hex_color: str, factor: float = 0.2) -> str:
     return f"#{r:02x}{g:02x}{b:02x}"
 
 
-# ==============================
-#        SAVE & TITLE HELPERS
-# ==============================
-
 def create_output_folder(event) -> Path:
     """
     Ensure the local output directory exists and return its Path.
@@ -535,124 +636,3 @@ def save_delta_figure(fig, event, label) -> None:
     filename = f"{event['country_code'].lower()}_{event['session'].lower().replace(' ', '_')}_delta_{'vs'.join(label)}.png"
     fig.savefig(save_folder / filename, format='png', dpi=300)
     print(f"Delta graph saved to: {save_folder / filename}")
-
-
-def add_figure_title(fig: Figure, drv_a_data: dict[str, Any],
-                     drv_b_data: dict[str, Any],
-                     event_info: dict[str, str | int]) -> None:
-    """
-    Add a formatted title to the figure containing event and driver information.
-
-    The title summarizes the race or qualifying session, showing the round number,
-    Grand Prix name, year, session type, and both drivers' lap details, positions,
-    and lap times.
-
-    Parameters
-    ----------
-    fig : matplotlib.figure.Figure
-        The figure to which the title will be added.
-    drv_a_data : dict[str, Any]
-        Dictionary containing data for the first driver, including keys such as
-        'lap', 'quali_phase', 'position', and 'laptime'.
-    drv_b_data : dict[str, Any]
-        Dictionary containing data for the second driver with the same structure
-        as ``drv_a_data``.
-    event_info : dict[str, str | int]
-        Dictionary containing event metadata such as 'round_number',
-        'grand_prix', 'year', and 'session'.
-
-    Returns
-    -------
-    None
-    """
-    fig.suptitle(
-        f"Round {event_info['round_number']} - {event_info['grand_prix']} {event_info['year']}\n"
-        f"{event_info['session']} - {drv_a_data['lap'].iloc[1]} vs {drv_b_data['lap'].iloc[1]}\n"
-        f"({drv_a_data['quali_phase']}) (P{drv_a_data['position']}) {drv_a_data['laptime']} vs "
-        f"({drv_b_data['quali_phase']}) (P{drv_b_data['position']}) {drv_b_data['laptime']}",
-        y=0.95, color='white', fontsize=13
-    )
-
-
-def add_legend(fig: Figure, ax: Axes) -> None:
-    """
-    Add a styled legend to the given figure.
-
-    This function creates a legend for the provided figure using the labels
-    from the specified Axes. The legend is styled for dark backgrounds with
-    white text and a dark frame.
-
-    Parameters
-    ----------
-    fig : matplotlib.figure.Figure
-        Figure to which the legend will be added.
-    ax : matplotlib.axes.Axes
-        Axes object used to extract legend handles and labels.
-
-    Returns
-    -------
-    None
-    """
-    handles, labels = ax.get_legend_handles_labels()
-    legend = fig.legend(
-        handles=handles,
-        labels=labels,
-        fontsize=15,
-        bbox_to_anchor=(0.61, 0.67, 0.3, 0.3)
-    )
-    for text in legend.get_texts():
-        text.set_color('white')
-    legend.get_frame().set_facecolor('#121212')
-
-
-def add_signature(fig: Figure) -> None:
-    """
-    Add a signature to the given figure.
-
-    Parameters
-    ----------
-    fig : matplotlib.figure.Figure
-        Figure which will get the signature.
-    
-    Returns
-    -------
-    None
-    """
-    fig.text(0.95, 0.05, 'Petar B.',
-             verticalalignment='bottom', horizontalalignment='right',
-             color='white', fontsize=10, alpha=0.7)
-
-
-# ==============================
-#        FIGURE HELPERS
-# ==============================
-
-def create_figure_with_subplots(figsize: Iterable, height_ratios: Iterable) -> tuple[Figure, list[Axes]] :
-    """
-    Create a Matplotlib figure with vertically stacked subplots using GridSpec.
-
-    This function generates a figure of the specified size and creates subplots
-    arranged in a single column with customizable height ratios. It also adjusts
-    the vertical spacing between subplots.
-
-    Parameters
-    ----------
-    figsize : Iterable
-        Figure size as (width, height) in inches.
-    height_ratios : Iterable
-        List or tuple of relative heights for each subplot. The length of this
-        iterable determines the number of subplots.
-
-    Returns
-    -------
-    fig : matplotlib.figure.Figure
-        The created Matplotlib figure.
-    axs : list[matplotlib.axes.Axes]
-        List of subplot Axes objects in top-to-bottom order.
-    """
-    fig = plt.figure(figsize=figsize)
-    fig.subplots_adjust(hspace=0.4)
-    gs = gridspec.GridSpec(len(height_ratios), 1, height_ratios=height_ratios)
-    axs = [fig.add_subplot(gs[i]) for i in range(len(height_ratios))]
-
-    return fig, axs
