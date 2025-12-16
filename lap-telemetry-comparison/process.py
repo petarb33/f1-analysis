@@ -1,6 +1,7 @@
 import pandas as pd
-
-def get_lap(session_data, driver, lap_input, car_data):
+from fastf1.core import Laps
+from fastf1.core import Telemetry
+def get_lap(session_data, driver, lap_input, car_data) -> dict[str, Laps | str | int | Telemetry]:
     """
     Retrieve lap information and telemetry for a specific driver and lap.
 
@@ -67,7 +68,7 @@ def get_lap(session_data, driver, lap_input, car_data):
 
     else:
         raise TypeError("lap_input must be int (lap number) or str (lap time)")
-    
+
     car_data[driver] = {
         'lap_object': lap,
         'laptime': format_laptime(laptime),
@@ -77,7 +78,7 @@ def get_lap(session_data, driver, lap_input, car_data):
 
     return car_data
 
-def format_laptime(seconds):
+def format_laptime(seconds) -> str:
     """
     Parameters
     ----------

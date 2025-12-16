@@ -5,8 +5,11 @@ import fastf1.plotting
 import fastf1.utils as utils
 from pathlib import Path
 from collections.abc import Iterable
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
+from fastf1.core import Laps
 
-def create_graph(car_data, session_data, event_info):
+def create_graph(car_data, session_data, event_info) -> None:
     """
     Create a multi-panel telemetry comparison graph for two drivers.
 
@@ -49,7 +52,7 @@ def create_graph(car_data, session_data, event_info):
 
     save_figure(fig, event_info, drivers, lap_numbers)
 
-def prepare_axes(figsize=(10, 10), height_ratios=None):
+def prepare_axes(figsize=(10, 10), height_ratios=None) -> tuple[Figure, Axes]:
     """
     Create a figure and vertically stacked axes for telemetry plotting.
 
@@ -79,7 +82,7 @@ def prepare_axes(figsize=(10, 10), height_ratios=None):
 
     return fig, axs
 
-def extract_lap_metadata(car_data):
+def extract_lap_metadata(car_data) -> tuple[list[str], list[str], list[str], list[Laps]]:
     """
     Extract drivers, lap numbers, lap times, and lap objects from `car_data`.
 
@@ -104,11 +107,11 @@ def extract_lap_metadata(car_data):
     lap_numbers = [str(data['lap_number']) for data in car_data.values()]
     lap_times   = [str(data['laptime']) for data in car_data.values()]
     lap_objects = [data['lap_object'] for data in car_data.values()]
-
+    
     return drivers, lap_numbers, lap_times, lap_objects
 
 
-def create_plots(axs, car_data, drivers_colors):
+def create_plots(axs, car_data, drivers_colors) -> None:
     """
     Plot telemetry comparisons for multiple drivers across several axes.
 
@@ -215,7 +218,7 @@ def plot_corners_vlines(session_data, ax) -> None:
                 va='center_baseline', ha='center',
                 color='white')
 
-def style_figure_and_axes(fig, axs):
+def style_figure_and_axes(fig, axs) -> None:
     """
     Style the given figure and axes according to their telemetry plots.
 
@@ -257,7 +260,7 @@ def style_figure_and_axes(fig, axs):
 
 
 
-def add_figure_title(fig, event_info, lap_numbers, lap_times, drivers):
+def add_figure_title(fig, event_info, lap_numbers, lap_times, drivers) -> None:
     """
     Add a formatted title to the figure summarizing event and lap comparison details.
 
@@ -293,7 +296,7 @@ def add_figure_title(fig, event_info, lap_numbers, lap_times, drivers):
         y=0.965, color='white', fontsize=13
     )
 
-def add_signature(fig):
+def add_signature(fig) -> None:
     """
     Add a signature to the given figure.
 
@@ -310,7 +313,7 @@ def add_signature(fig):
              verticalalignment='bottom', horizontalalignment='right',
              color='white', fontsize=10, alpha=0.7)
 
-def remove_borders(ax_or_axes):
+def remove_borders(ax_or_axes) -> None:
     """
     Remove spines (borders) from one or more Matplotlib axes.
 
@@ -366,7 +369,7 @@ def add_legend(fig, ax) -> None:
         text.set_color('white')
     legend.get_frame().set_facecolor('#121212')
 
-def get_drivers_colors(session_data):
+def get_drivers_colors(session_data) -> dict[str, str]:
     """
     Get a dictionary mapping driver abbreviations to their team color codes.
 
@@ -393,7 +396,7 @@ def get_drivers_colors(session_data):
 
     return colors
 
-def lighten_color(hex_color: str, factor: float = 0.2):
+def lighten_color(hex_color: str, factor: float = 0.2) -> str:
     """
     Lighten a hexadecimal color by a given factor.
 
@@ -460,7 +463,7 @@ def get_drivers_style(drivers_colors: dict[str],
         drv_b: {'linestyle': 'solid', 'color': drv_b_color}
     }
 
-def create_output_folder(event):
+def create_output_folder(event) -> Path:
     """
     Ensure the local output directory exists and return its Path.
 
@@ -487,7 +490,7 @@ def create_output_folder(event):
     return save_folder
 
 
-def save_figure(fig, event, drivers, lap_numbers):
+def save_figure(fig, event, drivers, lap_numbers) -> None:
     """
     Save a figure to the output directory with a descriptive filename.
 
