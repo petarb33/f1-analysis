@@ -2,10 +2,9 @@ import json
 import fastf1
 from fastf1.core import Session
 from fastf1.events import Event
-from typing import Tuple, Dict
 
 
-def get_input() -> Tuple[str, int]:
+def get_input() -> tuple[str, int]:
     """"
     Load the session configuration and return the country and year.
 
@@ -25,7 +24,7 @@ def get_input() -> Tuple[str, int]:
     return config['country'], config['year']
 
 
-def load_session() -> Dict[str, int]:
+def load_session() -> dict[str, int]:
     """
     Load the session configuration from a JSON file.
     
@@ -47,7 +46,7 @@ def load_session() -> Dict[str, int]:
         return json.load(f)
 
 
-def get_data(country: str, year: int) -> Tuple[Session, Event]:
+def get_data(country: str, year: int) -> tuple[Session, Event]:
     """
     Fetch and load FastF1 session and event data for given input.
 
@@ -77,7 +76,7 @@ def get_data(country: str, year: int) -> Tuple[Session, Event]:
     return session_data, event
 
 
-def get_event_info(session_data: Session, event: dict)-> Dict[str, str | int]:
+def get_event_info(session_data: Session, event: dict)-> dict[str, str | int]:
     """
     Extract structured information about the race weekend.
 
