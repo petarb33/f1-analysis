@@ -1,6 +1,6 @@
 import pandas as pd
 
-def get_fastest_sector_data(session, drivers):
+def get_fastest_sector_data(session, drivers) -> tuple[dict[str, pd.DataFrame], dict[str, pd.DataFrame]]:
     """
     Collect each driver's fastest sector times and corresponding deltas for a session.
 
@@ -60,7 +60,7 @@ def get_fastest_sector_data(session, drivers):
 
     return time_dict, delta_dict
 
-def get_fastest_sectors(session):
+def get_fastest_sectors(session) -> dict[str, float]:
     """
     Returns fastest time for each sector, which will be used to calculate delta.
 
@@ -82,7 +82,7 @@ def get_fastest_sectors(session):
         for sector in ['Sector1Time', 'Sector2Time', 'Sector3Time']
     }
 
-def get_driver_fastest_sector(session, driver, sector, fastest_sector_time):
+def get_driver_fastest_sector(session, driver, sector, fastest_sector_time) -> dict[str, str | float]:
     """
     Function returns drivers fastest sector time, delta to fastest
     sector and tyre on which sector is driven.
@@ -121,7 +121,7 @@ def get_driver_fastest_sector(session, driver, sector, fastest_sector_time):
         {'Driver': driver, 'Time': sector_time, 'Compound': sector_compound, 'Delta': delta}
     )
 
-def get_fastest_lap_sectors(session, drivers):
+def get_fastest_lap_sectors(session, drivers) -> dict[str, pd.DataFrame]:
     """
     Gather each driver's fastest-lap sector times and compute deltas to the sector leader.
 

@@ -6,7 +6,7 @@ import seaborn as sns
 from pathlib import Path
     
     
-def create_graph(data, sectors, event_info, title, label, mode='Time'):
+def create_graph(data, sectors, event_info, title, label, mode='Time') -> None:
     """
     Create and save a bar plot visualizing sector performance for each driver.
 
@@ -43,7 +43,7 @@ def create_graph(data, sectors, event_info, title, label, mode='Time'):
     save_figure(fig, event_info, label)
 
 
-def get_drivers_colors(data):
+def get_drivers_colors(data) -> dict[str, str]:
     """
     Get driver color mapping for plotting.
 
@@ -60,7 +60,7 @@ def get_drivers_colors(data):
     return fastf1.plotting.get_driver_color_mapping(data, colormap='default')
 
 
-def get_compound_colors(data):
+def get_compound_colors(data) -> dict[str, str]:
     """
     Get color mapping for tyre compounds.
 
@@ -77,7 +77,7 @@ def get_compound_colors(data):
     return fastf1.plotting.get_compound_mapping(session=data)
 
 
-def plot_sectors_time(sectors, drivers_colors, tyres_colors, axs, mode='Time'):
+def plot_sectors_time(sectors, drivers_colors, tyres_colors, axs, mode='Time') -> set[str]:
     """
     Plot bar charts for each sector, grouped by driver.
 
@@ -128,7 +128,7 @@ def plot_sectors_time(sectors, drivers_colors, tyres_colors, axs, mode='Time'):
     return tyres_used
 
 
-def set_ylim(df, ax):
+def set_ylim(df, ax) -> None:
     """
     Adjust Y-axis limits to add visual margin around min and max values.
 
@@ -150,7 +150,7 @@ def set_ylim(df, ax):
     ax.set_ylim(min_value - margin, max_value + margin)
         
 
-def apply_edgecolors(ax, tyre_series, color_map):
+def apply_edgecolors(ax, tyre_series, color_map) -> None:
     """
     Apply edge colors to bars based on tyre compounds.
 
@@ -169,7 +169,7 @@ def apply_edgecolors(ax, tyre_series, color_map):
         bar.set_linewidth(1.5)
 
 
-def style_figure_and_axes(fig, axs):
+def style_figure_and_axes(fig, axs) -> None:
     """
     Apply consistent styling to the figure and axes, remove axes spines,
     put on grid...
@@ -207,7 +207,7 @@ def style_figure_and_axes(fig, axs):
         ax.set_axisbelow(True)
 
 
-def add_fig_title(fig, event_info, title):
+def add_fig_title(fig, event_info, title) -> None:
     """
     Add a formatted title to the figure.
 
@@ -229,7 +229,7 @@ def add_fig_title(fig, event_info, title):
     )
 
 
-def add_axs_title(axs):
+def add_axs_title(axs) -> None:
     """
     Add titles for each sector subplot.
 
@@ -242,7 +242,7 @@ def add_axs_title(axs):
         ax.set_title(f'Sector {i}', color='white', fontsize=10)
 
 
-def add_signature(axs):
+def add_signature(axs) -> None:
     """
     Add a signature text to the bottom-right of the last subplot.
 
@@ -259,7 +259,7 @@ def add_signature(axs):
     )
 
 
-def add_legend(fig, tyres_used, tyres_colors):
+def add_legend(fig, tyres_used, tyres_colors) -> None:
     """
     Add a custom legend indicating tyre compounds.
 
@@ -297,7 +297,7 @@ def add_legend(fig, tyres_used, tyres_colors):
     legend.get_title().set_color('white')
 
 
-def save_figure(fig, event, label):
+def save_figure(fig, event, label) -> None:
     """
     Save the provided figure to the output directory with a descriptive filename.
 
@@ -330,7 +330,7 @@ def save_figure(fig, event, label):
     print(f"Figure saved to: {filepath}")
 
 
-def create_output_folder(event):
+def create_output_folder(event) -> Path:
     """
     Ensure the local output directory exists and return its Path.
 
