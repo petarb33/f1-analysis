@@ -109,7 +109,7 @@ def get_quali_laps(session_data: Session, drivers: list) -> QualiLapsEntry:
 
     return drivers_quali_times
 
-def format_laptime(seconds):
+def format_laptime(seconds) -> str:
     """
     Parameters
     ----------
