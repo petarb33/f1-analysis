@@ -259,7 +259,7 @@ def style_fig_and_axs(fig: Figure, axs: Axes | list[Axes]) -> None:
             ax.spines[side].set_visible(False)
         
 
-def add_ylabel(ax: Axes):
+def add_ylabel(ax: Axes) -> None:
     """
     Sets axes Y label to 'LapTime (s)'
 
