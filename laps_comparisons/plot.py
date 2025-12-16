@@ -378,7 +378,7 @@ def create_output_folder(event: dict) -> Path:
     """
     base_folder = Path(__file__).parent.parent / "_output_plots"
     folder_name = f"{event['year']}_r{event['round_number']:02d}_{event['country_name'].lower()}"
-    save_folder = base_folder / folder_name
+    save_folder = base_folder / folder_name.replace(' ', '_')
 
     try:
         save_folder.mkdir(parents=True, exist_ok=True)
