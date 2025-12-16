@@ -57,7 +57,7 @@ def pick_racelaps(session_data: Session, drivers: list[str]) -> dict[str, pd.Dat
     return laps
 
 
-def fill_missing_laps(laps):
+def fill_missing_laps(laps) -> pd.DataFrame:
     """
     Fill missing lap times from sector times if all sectors are valid.
 
