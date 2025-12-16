@@ -330,7 +330,7 @@ def add_signature(ax: Axes) -> None:
     None
     """
     ax.text(
-        1.06, -0.1, 'Petar B.',
+        1.09, -0.12, 'Petar B.',
         verticalalignment='bottom', horizontalalignment='right',
         transform=ax.transAxes,
         color='white', fontsize=10, alpha=0.7
