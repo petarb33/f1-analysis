@@ -2,9 +2,8 @@ import fastf1
 import json
 from fastf1.core import Session
 from fastf1.events import Event
-from typing import Tuple, Dict, List
 
-def get_input() -> Tuple[str, int]:
+def get_input() -> tuple[str, int]:
     """"
     Load the session configuration and return the country and year.
 
@@ -23,7 +22,7 @@ def get_input() -> Tuple[str, int]:
     config = load_session()
     return config['country'], config['year'], config['sprint']
 
-def load_session() -> Dict[str, int]:
+def load_session() -> dict[str, int]:
     """
     Load the session configuration from a JSON file.
     
@@ -45,7 +44,7 @@ def load_session() -> Dict[str, int]:
     with open(file_path, 'r') as f:
         return json.load(f)
 
-def get_data(country: str, year: int, sprint: bool) -> Tuple[Session, Event]:
+def get_data(country: str, year: int, sprint: bool) -> tuple[Session, Event]:
     """
     Fetch and load FastF1 session and event data for given input.
 
@@ -75,7 +74,7 @@ def get_data(country: str, year: int, sprint: bool) -> Tuple[Session, Event]:
 
     return session_data, event
 
-def get_event_info(session_data: Session, event: Event) -> Dict[str, str | int]:
+def get_event_info(session_data: Session, event: Event) -> dict[str, str | int]:
     """
     Extract structured information about the race weekend.
 
@@ -115,7 +114,7 @@ def get_event_info(session_data: Session, event: Event) -> Dict[str, str | int]:
         'year' : session_data.session_info['StartDate'].year
     }
 
-def get_drivers(session_data: Session) -> List[str]:
+def get_drivers(session_data: Session) -> list[str]:
     """
     Retrieve a list of driver abbreviations from the session results.
 

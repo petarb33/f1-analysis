@@ -8,7 +8,7 @@ from pathlib import Path
 
 SESSION_COLORS = {"Q1": "#b2df8a", "Q2": "#66c2a5", "Q3": "#1b7837"}
 
-def create_graph(quali_data, event_info, fig_width):
+def create_graph(quali_data, event_info, fig_width) -> None:
     """
     Create and save a qualifying gap-to-pole figure.
 

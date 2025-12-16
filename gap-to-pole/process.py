@@ -1,8 +1,7 @@
 import pandas as pd
-from typing import List
 from fastf1.core import Session
 
-def extract_quali_laps(session_data: Session, drivers: List) -> pd.DataFrame:
+def extract_quali_laps(session_data: Session, drivers: list) -> pd.DataFrame:
     """
     Extract qualifying lap data from a given session (Qualifying or Sprint Qualifying).
 
