@@ -562,7 +562,7 @@ def create_output_folder(event) -> Path:
     """
     base_folder = Path(__file__).parent.parent / "_output_plots"
     folder_name = f"{event['year']}_r{event['round_number']:02d}_{event['country_name'].lower()}/Quali"
-    save_folder = base_folder / folder_name
+    save_folder = base_folder / folder_name.replace(" ", "_")
     save_folder.mkdir(parents=True, exist_ok=True)
     return save_folder
 
