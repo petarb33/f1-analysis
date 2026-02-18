@@ -149,7 +149,7 @@ def add_figure_title(fig: Figure, event_info: Dict) -> None:
 
     fig.suptitle(
         f'Round {round_number} - {grand_prix}'
-        f'{year}\n{session} - Gap To Pole',
+        f' {year}\n{session} - Gap To Pole',
         color='white',
         y=0.937,
         fontsize=15
