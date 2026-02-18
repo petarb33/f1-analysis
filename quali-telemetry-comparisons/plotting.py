@@ -85,7 +85,7 @@ def create_delta_graphs(session_data: Session, car_data: CarDataEntry,
     for drv_a, drv_b in combinations:
         style = get_drivers_style(drivers_colors, drv_a, drv_b)
 
-        fig, ax = plt.subplots(figsize=(15, 10))
+        fig, ax = plt.subplots(figsize=(20, 10))
         set_dark_background(fig, ax)
 
         for drv in (drv_a, drv_b):
