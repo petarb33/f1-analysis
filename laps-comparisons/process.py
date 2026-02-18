@@ -22,6 +22,7 @@ def pick_quicklaps(session_data: Session, drivers: list[str]) -> dict[str, pd.Da
     for driver in drivers:
         quick_laps = session_data.laps.pick_drivers(driver).pick_wo_box().pick_quicklaps()
         quick_laps['LapTime (s)'] = quick_laps['LapTime'].dt.total_seconds()
+        quick_laps = quick_laps[quick_laps['LapNumber'] != 1]
         laps[driver] = quick_laps.reset_index(drop=True)
     
     return laps
@@ -50,6 +51,8 @@ def pick_racelaps(session_data: Session, drivers: list[str]) -> dict[str, pd.Dat
         race_laps = race_laps[
             ~race_laps['TrackStatus'].str.contains(r'[4567]', na=False)
         ]
+
+        race_laps = race_laps[race_laps['LapNumber'] != 1]
 
         race_laps = fill_missing_laps(race_laps)
         laps[driver] = race_laps.reset_index(drop=True)
