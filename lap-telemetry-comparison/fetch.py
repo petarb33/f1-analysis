@@ -132,7 +132,7 @@ def get_event_info(session_data: Session, event: Event) -> dict[str, str | int]:
         'country_name' : session_data.session_info['Meeting']['Country']['Name'],
         'country_code' : session_data.session_info['Meeting']['Country']['Code'],
         'round_number' : event['RoundNumber'],
-        'session' : session_data.session_info['Type'],
+        'session' : session_data.session_info['Name'],
         'year' : session_data.session_info['StartDate'].year
         }
 
