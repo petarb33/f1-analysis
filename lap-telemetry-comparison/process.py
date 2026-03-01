@@ -1,6 +1,8 @@
 import pandas as pd
 from fastf1.core import Laps
 from fastf1.core import Telemetry
+from exceptions import LaptimeMissingError
+
 def get_lap(session_data, driver, lap_input, car_data) -> dict[str, Laps | str | int | Telemetry]:
     """
     Retrieve lap information and telemetry for a specific driver and lap.
@@ -43,6 +45,7 @@ def get_lap(session_data, driver, lap_input, car_data) -> dict[str, Laps | str |
     (e.g., ``"1:23.456" → "00:1:23.456"``).
     """
     laps = session_data.laps.pick_drivers(driver)
+    laps = fill_missing_laps(laps)
     lap = None
     lap_number = None
     laptime = None
@@ -69,6 +72,9 @@ def get_lap(session_data, driver, lap_input, car_data) -> dict[str, Laps | str |
     else:
         raise TypeError("lap_input must be int (lap number) or str (lap time)")
 
+    if pd.notna(laptime) == False:
+        raise LaptimeMissingError(f"Laptime for lap {lap_number} does not exist.")
+
     car_data[driver] = {
         'lap_object': lap,
         'laptime': format_laptime(laptime),
@@ -77,6 +83,30 @@ def get_lap(session_data, driver, lap_input, car_data) -> dict[str, Laps | str |
     }
 
     return car_data
+
+def fill_missing_laps(laps: pd.DataFrame) -> pd.DataFrame:
+    """
+    Fill missing lap times from sector times if all sectors are valid.
+
+    Parameters
+    ----------
+        laps: DataFrame of laps.
+
+    Returns
+    -------
+        DataFrame with missing LapTime (s) filled where possible.
+    """
+    for index, lap in laps.iterrows():
+        if pd.isna(lap['LapTime']):
+            s1, s2, s3 = lap['Sector1Time'], lap['Sector2Time'], lap['Sector3Time']
+            if all(pd.notna([s1, s2, s3])):
+                laptime = s1.total_seconds() + s2.total_seconds() + s3.total_seconds()
+                laps.at[index, 'LapTime (s)'] = laptime
+                print(
+                    f"At Lap {lap['LapNumber']} for {lap['Driver']} "
+                    f"changed NaN to {laptime:.3f}"
+                )
+    return laps
 
 def format_laptime(seconds) -> str:
     """
