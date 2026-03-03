@@ -1,0 +1,10 @@
+{
+    "COMMENT":"Input example for gap_to_pole script",
+    "country":"Abu Dhabi",
+    "session":"Qualifying",
+    "year":2025,
+    "driver1": "VER",
+    "driver2": "NOR",
+    "lap1": 12,
+    "lap2": 12
+}
