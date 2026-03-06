@@ -50,7 +50,8 @@ def get_fastest_sector_data(session, drivers) -> tuple[dict[str, pd.DataFrame], 
         for driver in drivers:
             time_data = get_driver_fastest_sector(session, driver, sector, fastest_sectors[sector])
 
-            time_data_list.append(time_data)
+            if time_data is not None:
+                time_data_list.append(time_data)
     
         time_df = pd.DataFrame(time_data_list).sort_values(by='Time').reset_index(drop=True)
         delta_df = pd.DataFrame(time_data_list).sort_values(by='Delta').reset_index(drop=True)
@@ -108,7 +109,7 @@ def get_driver_fastest_sector(session, driver, sector, fastest_sector_time) -> d
     sector_times = driver_laps[sector].dropna()
 
     if sector_times.empty or fastest_sector_time is None:
-        return None, None
+        return None
     
     sector_time_obj = sector_times.min()
     sector_time = sector_time_obj.total_seconds()
@@ -117,9 +118,8 @@ def get_driver_fastest_sector(session, driver, sector, fastest_sector_time) -> d
     sector_idx = sector_times.idxmin()
     sector_compound = driver_laps.at[sector_idx, 'Compound']
 
-    return (
-        {'Driver': driver, 'Time': sector_time, 'Compound': sector_compound, 'Delta': delta}
-    )
+    return {'Driver': driver, 'Time': sector_time, 'Compound': sector_compound, 'Delta': delta}
+    
 
 def get_fastest_lap_sectors(session, drivers) -> dict[str, pd.DataFrame]:
     """
