@@ -105,18 +105,21 @@ def get_driver_fastest_sector(session, driver, sector, fastest_sector_time) -> d
         Keys: 'Driver' (str), 'Time' (float, seconds), 'Compound' (str)
         Description: the driver's fastest sector time and tyre compound for that lap.
     """
-    driver_laps = session.laps.pick_drivers(driver)
-    sector_times = driver_laps[sector].dropna()
+    laps = session.laps.pick_drivers(driver)
+
+    sector_times = laps[sector].dropna()
 
     if sector_times.empty or fastest_sector_time is None:
         return None
     
-    sector_time_obj = sector_times.min()
-    sector_time = sector_time_obj.total_seconds()
+    sector_time = sector_times.min().total_seconds()
     delta = sector_time - fastest_sector_time
 
+    if sector_time > fastest_sector_time * 1.07:
+        return None
+
     sector_idx = sector_times.idxmin()
-    sector_compound = driver_laps.at[sector_idx, 'Compound']
+    sector_compound = laps.at[sector_idx, 'Compound'] 
 
     return {'Driver': driver, 'Time': sector_time, 'Compound': sector_compound, 'Delta': delta}
     
@@ -149,18 +152,22 @@ def get_fastest_lap_sectors(session, drivers) -> dict[str, pd.DataFrame]:
     """
     sectors = ['Sector1Time', 'Sector2Time', 'Sector3Time']
     sectors_dict = {sector: [] for sector in sectors}
+    fastest_lap = session.laps.pick_fastest()
 
     for driver in drivers:
-        fastest_lap = session.laps.pick_drivers(driver).pick_fastest()
+        drivers_fastest_lap = session.laps.pick_drivers(driver).pick_fastest()
         
-        if fastest_lap is None or pd.isna(fastest_lap['LapTime']):
+        if (drivers_fastest_lap is None or
+            pd.isna(drivers_fastest_lap['LapTime']) or
+            drivers_fastest_lap['LapTime'] > fastest_lap['LapTime'] * 1.07):
+            print(f'LAPTIME FOR {driver} NOT SHOWN')
             continue
 
         for sector in sectors:
             sectors_dict[sector].append({
                 'Driver': driver,
-                'Time': fastest_lap[sector].total_seconds(),
-                'Compound': fastest_lap['Compound']
+                'Time': drivers_fastest_lap[sector].total_seconds(),
+                'Compound': drivers_fastest_lap['Compound']
             })
 
     for sector in sectors:
