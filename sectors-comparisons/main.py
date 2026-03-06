@@ -29,7 +29,7 @@ def main():
         mode='Delta'
     )
 
-    fastest_lap_sectors = get_fastest_lap_sectors(session_data, drivers)
+    fastest_lap_sectors, quick_fl_sectors = get_fastest_lap_sectors(session_data, drivers)
 
     create_graph(
         session_data,
@@ -45,6 +45,23 @@ def main():
         event_info,
         title='Fastest Lap in Sectors - Delta',
         label='fl_sectors_delta',
+        mode='Delta'
+    )
+
+    create_graph(
+        session_data,
+        quick_fl_sectors,
+        event_info,
+        title='Fastest Lap in Sectors',
+        label='quick_fl_sectors',
+    )
+
+    create_graph(
+        session_data,
+        quick_fl_sectors,
+        event_info,
+        title='Fastest Lap in Sectors - Delta',
+        label='quick_fl_sectors_delta',
         mode='Delta'
     )
 

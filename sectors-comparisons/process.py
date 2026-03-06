@@ -152,16 +152,20 @@ def get_fastest_lap_sectors(session, drivers) -> dict[str, pd.DataFrame]:
     """
     sectors = ['Sector1Time', 'Sector2Time', 'Sector3Time']
     sectors_dict = {sector: [] for sector in sectors}
+    
     fastest_lap = session.laps.pick_fastest()
+    slower_drivers = []
 
     for driver in drivers:
         drivers_fastest_lap = session.laps.pick_drivers(driver).pick_fastest()
         
         if (drivers_fastest_lap is None or
-            pd.isna(drivers_fastest_lap['LapTime']) or
-            drivers_fastest_lap['LapTime'] > fastest_lap['LapTime'] * 1.07):
+            pd.isna(drivers_fastest_lap['LapTime'])):
             print(f'LAPTIME FOR {driver} NOT SHOWN')
             continue
+
+        if drivers_fastest_lap['LapTime'] > fastest_lap['LapTime'] * 1.07:
+            slower_drivers.append(driver)
 
         for sector in sectors:
             sectors_dict[sector].append({
@@ -181,5 +185,11 @@ def get_fastest_lap_sectors(session, drivers) -> dict[str, pd.DataFrame]:
             
         sectors_dict[sector] = df
 
-    return sectors_dict
+    quick_fl_sectors_dict = {}
+    for sector in ['Sector1Time', 'Sector2Time', 'Sector3Time']:
+        df = sectors_dict[sector]
+        df = df[~df['Driver'].isin(slower_drivers)]
+        quick_fl_sectors_dict[sector] = df
+
+    return sectors_dict, quick_fl_sectors_dict
 
