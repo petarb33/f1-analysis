@@ -195,7 +195,22 @@ def get_fastest_lap_sectors(session, drivers) -> SectorsResult:
 
     return SectorsResult(sectors_dict, quick_fl_sectors_dict)
 
-def filter_slow_drivers(sectors_dict, slower_drivers):
+def filter_slow_drivers(sectors_dict, slower_drivers) -> dict[str, pd.DataFrame]:
+    """
+    Filter out slow drivers from the sectors dictionary.
+
+    Parameters
+    ----------
+    sectors_dict : dict[str, pd.DataFrame]
+        Sector DataFrames keyed by sector name, as returned by get_fastest_lap_sectors.
+    slower_drivers : list of str
+        Driver abbreviations to exclude.
+
+    Returns
+    -------
+    dict[str, pd.DataFrame]
+        sectors_dict with slow drivers removed from each DataFrame.
+    """
     quick_fl_sectors_dict = {}
 
     for sector in ['Sector1Time', 'Sector2Time', 'Sector3Time']:
