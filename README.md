@@ -45,7 +45,8 @@ f1-analysis/
 ├── race_pace_strategies/
 ├── sectors-comparisons/
 ├── v-comparisons/
-└── README.md
+├── README.md
+└── colors.py
 ```
 
 ## :gear: Installation
@@ -53,7 +54,7 @@ f1-analysis/
 ```
 git clone https://github.com/petarb33/f1-analysis.git
 cd f1-analysis
-pip install fastf1 seaborn
+pip install fastf1 pandas matplotlib seaborn
 ```
 
 ## :rocket: Usage
@@ -64,7 +65,7 @@ python main.py
 ```
 Configure the input by creating/copying `session.json` inside the folder (use the examples from `input-examples/` as a reference).
 
-Results of scripts are images (.png) created in local in `_output_plots/` folder.
+Results of scripts are images (.png) created in local `_output_plots/` folder.
 
 ## :bar_chart: Examples (Outputs)
 ### 1. Gap to Pole
