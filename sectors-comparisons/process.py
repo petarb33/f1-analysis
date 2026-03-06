@@ -143,18 +143,15 @@ def get_fastest_lap_sectors(session, drivers) -> SectorsResult:
 
     Returns
     -------
-    sectors_dict : dict
-        Dictionary keyed by sector name ('Sector1Time', 'Sector2Time', 'Sector3Time').
-        Each value is a pandas.DataFrame with four columns:
-        Driver : str
-            Driver abbreviation.
-        Time : float
-            Fastest sector time for that driver in seconds.
-        Compound : object
-            Tyre compound value taken from the driver's fastest lap (type depends on session data).
-        Delta : float
-            Difference in seconds between the driver's sector time and the sector leader
-            (leader has Delta = 0.0).    
+    SectorsResult
+        A NamedTuple with two fields:
+        all_sectors : dict[str, pd.DataFrame]
+            All drivers' sector times, keyed by sector name.
+        quick_sectors : dict[str, pd.DataFrame]
+            Same as all_sectors but with slow drivers (>{SECTOR_TIME_CUTOFF_RATIO}x
+            the fastest lap) removed.
+
+        Each DataFrame contains columns: Driver, Time (seconds), Compound, Delta (seconds). 
     """
     sectors = ['Sector1Time', 'Sector2Time', 'Sector3Time']
     sectors_dict = {sector: [] for sector in sectors}
