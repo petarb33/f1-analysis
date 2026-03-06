@@ -1,5 +1,6 @@
 import pandas as pd
 from typing import NamedTuple
+import logging
 
 class SectorsResult(NamedTuple):
     all_sectors: dict[str, pd.DataFrame]
@@ -60,11 +61,9 @@ def get_fastest_sector_data(session, drivers) -> tuple[dict[str, pd.DataFrame], 
             if time_data is not None:
                 time_data_list.append(time_data)
     
-        time_df = pd.DataFrame(time_data_list).sort_values(by='Time').reset_index(drop=True)
-        delta_df = pd.DataFrame(time_data_list).sort_values(by='Delta').reset_index(drop=True)
-        
-        time_dict[sector] = time_df
-        delta_dict[sector] = delta_df
+        df = pd.DataFrame(time_data_list)
+        time_dict[sector] = df.sort_values('Time').reset_index(drop=True)
+        delta_dict[sector] = df.sort_values('Delta').reset_index(drop=True)
 
     return time_dict, delta_dict
 
@@ -168,7 +167,7 @@ def get_fastest_lap_sectors(session, drivers) -> SectorsResult:
         
         if (drivers_fastest_lap is None or
             pd.isna(drivers_fastest_lap['LapTime'])):
-            print(f'LAPTIME FOR {driver} NOT SHOWN')
+            logging.warning(f'Laptime for {driver} not shown')
             continue
 
         if drivers_fastest_lap['LapTime'] > fastest_lap['LapTime'] * SECTOR_TIME_CUTOFF_RATIO:
@@ -192,11 +191,16 @@ def get_fastest_lap_sectors(session, drivers) -> SectorsResult:
             
         sectors_dict[sector] = df
 
+    quick_fl_sectors_dict = filter_slow_drivers(sectors_dict, slower_drivers)
+
+    return SectorsResult(sectors_dict, quick_fl_sectors_dict)
+
+def filter_slow_drivers(sectors_dict, slower_drivers):
     quick_fl_sectors_dict = {}
+
     for sector in ['Sector1Time', 'Sector2Time', 'Sector3Time']:
         df = sectors_dict[sector]
         df = df[~df['Driver'].isin(slower_drivers)]
         quick_fl_sectors_dict[sector] = df
-
-    return SectorsResult(sectors_dict, quick_fl_sectors_dict)
-
+    
+    return quick_fl_sectors_dict
