@@ -1,4 +1,11 @@
 import pandas as pd
+from typing import NamedTuple
+
+class SectorsResult(NamedTuple):
+    all_sectors: dict[str, pd.DataFrame]
+    quick_sectors: dict[str, pd.DataFrame]
+
+SECTOR_TIME_CUTOFF_RATIO = 1.07
 
 def get_fastest_sector_data(session, drivers) -> tuple[dict[str, pd.DataFrame], dict[str, pd.DataFrame]]:
     """
@@ -115,7 +122,7 @@ def get_driver_fastest_sector(session, driver, sector, fastest_sector_time) -> d
     sector_time = sector_times.min().total_seconds()
     delta = sector_time - fastest_sector_time
 
-    if sector_time > fastest_sector_time * 1.07:
+    if sector_time > fastest_sector_time * SECTOR_TIME_CUTOFF_RATIO:
         return None
 
     sector_idx = sector_times.idxmin()
@@ -124,7 +131,7 @@ def get_driver_fastest_sector(session, driver, sector, fastest_sector_time) -> d
     return {'Driver': driver, 'Time': sector_time, 'Compound': sector_compound, 'Delta': delta}
     
 
-def get_fastest_lap_sectors(session, drivers) -> dict[str, pd.DataFrame]:
+def get_fastest_lap_sectors(session, drivers) -> SectorsResult:
     """
     Gather each driver's fastest-lap sector times and compute deltas to the sector leader.
 
@@ -164,7 +171,7 @@ def get_fastest_lap_sectors(session, drivers) -> dict[str, pd.DataFrame]:
             print(f'LAPTIME FOR {driver} NOT SHOWN')
             continue
 
-        if drivers_fastest_lap['LapTime'] > fastest_lap['LapTime'] * 1.07:
+        if drivers_fastest_lap['LapTime'] > fastest_lap['LapTime'] * SECTOR_TIME_CUTOFF_RATIO:
             slower_drivers.append(driver)
 
         for sector in sectors:
@@ -191,5 +198,5 @@ def get_fastest_lap_sectors(session, drivers) -> dict[str, pd.DataFrame]:
         df = df[~df['Driver'].isin(slower_drivers)]
         quick_fl_sectors_dict[sector] = df
 
-    return sectors_dict, quick_fl_sectors_dict
+    return SectorsResult(sectors_dict, quick_fl_sectors_dict)
 
