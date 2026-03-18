@@ -1,9 +1,9 @@
 # F1 Analysis :checkered_flag:
-![Python](https://img.shields.io/badge/python-3.12+-blue)
-![FastF1](https://img.shields.io/badge/FastF1-api-red)
-![Pandas](https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=white)
-![Matplotlib](https://img.shields.io/badge/Matplotlib-11557c?logo=python&logoColor=white)
-![Seaborn](https://img.shields.io/badge/Seaborn-4c72b0?logoColor=white)
+[![Python](https://img.shields.io/badge/python-3.12+-blue)](https://www.python.org/)
+[![FastF1](https://img.shields.io/badge/FastF1-api-red)](https://docs.fastf1.dev/)
+[![Pandas](https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+[![Matplotlib](https://img.shields.io/badge/Matplotlib-11557c?logo=python&logoColor=white)](https://matplotlib.org/)
+[![Seaborn](https://img.shields.io/badge/Seaborn-4c72b0?logoColor=white)](https://seaborn.pydata.org/)
 
 
 ---
