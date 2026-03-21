@@ -73,6 +73,7 @@ def plot_positions_change(session_data: Session, ax: Axes) -> None:
             x='LapNumber',
             y='Position',
             label=abb,
+            ax=ax,
             **style
         )
     
@@ -123,6 +124,9 @@ def style_figure_and_axes(fig: Figure, ax: Axes) -> None:
 
 def add_figure_title(fig: Figure, event_info: dict) -> None:
     """
+    Add a two-line title to the figure with round, grand prix, year,
+    and session type.
+
     Parameters
     ----------
     fig : matplotlib.figure.Figure
@@ -135,9 +139,14 @@ def add_figure_title(fig: Figure, event_info: dict) -> None:
     -------
     None
     """
+    round_number = event_info['round_number']
+    grand_prix = event_info['grand_prix']
+    year = event_info['year']
+    session = event_info['session']
+    
     fig.suptitle(
-        f'Round {event_info['round_number']} - {event_info['grand_prix']} '
-        f'{event_info['year']}\n{event_info['session']} - Position Changes',
+        f'Round {round_number} - {grand_prix} '
+        f'{year}\n{session} - Position Changes',
         color='white', y=0.94, fontsize=18
     )
 
