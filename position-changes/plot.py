@@ -56,6 +56,10 @@ def plot_positions_change(session_data: Session, ax: Axes) -> None:
     """
     for driver in session_data.drivers:
         driver_laps = session_data.laps.pick_drivers(driver)
+        
+        if driver_laps.empty:
+            continue
+
         abb = driver_laps['Driver'].iloc[0]
 
         style = fastf1.plotting.get_driver_style(
