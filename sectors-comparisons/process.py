@@ -170,6 +170,9 @@ def get_fastest_lap_sectors(session, drivers) -> SectorsResult:
         if drivers_fastest_lap['LapTime'] > fastest_lap['LapTime'] * SECTOR_TIME_CUTOFF_RATIO:
             slower_drivers.append(driver)
 
+        if any(pd.isna(drivers_fastest_lap[sector]) for sector in sectors):
+            continue
+
         for sector in sectors:
             sectors_dict[sector].append({
                 'Driver': driver,
