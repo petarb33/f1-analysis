@@ -36,15 +36,15 @@ def create_graph(data, sectors, event_info, title, label, mode='Time') -> None:
     fig, axs = plt.subplots(ncols=1, nrows=3, figsize=(10,10))
     plt.subplots_adjust(hspace=0.3)
 
-    #drivers_colors = get_drivers_colors(data)
-    #tyres_colors = get_compound_colors(data)
+    drivers_colors = get_drivers_colors(data)
+    tyres_colors = get_compound_colors(data)
 
-    tyres_used = plot_sectors_time(sectors, DRIVER_COLORS, COMPOUND_COLORS, axs, mode)
+    tyres_used = plot_sectors_time(sectors, drivers_colors, tyres_colors, axs, mode)
     style_figure_and_axes(fig, axs)
     add_fig_title(fig, event_info, title)
     add_axs_title(axs)
     add_signature(axs)
-    add_legend(fig, tyres_used, COMPOUND_COLORS)
+    add_legend(fig, tyres_used, tyres_colors)
     save_figure(fig, event_info, label)
 
 
@@ -146,8 +146,6 @@ def set_ylim(df, ax) -> None:
         DataFrame containing the values to be plotted.
     ax : matplotlib.axes.Axes
         Axis object for which to set the Y limits.
-    mode : str
-        Column name used to determine the plotted values.
     """
     min_value = df['Time'].min()
     max_value = df['Time'].max()
