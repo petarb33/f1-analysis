@@ -19,14 +19,14 @@ def get_quali_laps_car_data(session_data: Session, drivers_laptimes: QualiLapsEn
     
     Returns
     -------
-    dict[str, dict[str, Union[pd.DataFrame, str, lap, str, int]]]
+    dict[str, dict[str, pd.DataFrame | Lap | str | int]]
         A dictionary mapping driver abbreviations to their qualifying lap data.
         Each value is a dictionary containing:
 
         - 'telemetry' (pd.DataFrame): Telemetry data used for telemetry line plots.
         - 'quali_phase' (str): The qualifying phase in which the lap was set 
           ('Q1', 'Q2', 'Q3', or 'NoTime').
-        - 'lap' (fastf1.core.Lap): Lap object used for delta comparison plots.
+        - 'Lap' (fastf1.core.Lap): Lap object used for delta comparison plots.
         - 'laptime' (str): Lap time formatted as 'm:ss.MMM'.
         - 'position' (int): Driver's final qualifying position on the grid.
 
@@ -40,7 +40,6 @@ def get_quali_laps_car_data(session_data: Session, drivers_laptimes: QualiLapsEn
         laps = session_data.laps.pick_drivers(drv)
         for _, lap in laps.iterrows():
             if lap['LapTime'].total_seconds() == laptime:
-                print(type(lap))
                 car_data[drv] = {
                     'telemetry':lap.get_car_data().add_distance(),
                     'quali_phase':quali_phase,
@@ -68,7 +67,7 @@ def get_quali_laps(session_data: Session, drivers: list) -> QualiLapsEntry:
 
     Returns
     -------
-    dict[str, dict[str, Union[float, str, int]]]
+    dict[str, dict[str, float | str | int]]
         A dictionary mapping driver abbreviations to their qualifying lap data.
         Each value is a dictionary containing:
 
@@ -101,11 +100,6 @@ def get_quali_laps(session_data: Session, drivers: list) -> QualiLapsEntry:
         drivers_quali_times[driver]['laptime'] = laptime
         drivers_quali_times[driver]['quali_phase'] = quali_phase
         drivers_quali_times[driver]['position'] = int(row.Position) 
-        
-    drivers_quali_times = {
-        drv: (value if value is not None else tuple([0, 'NoTime' , 0]))
-        for drv, value in drivers_quali_times.items()
-    }
 
     return drivers_quali_times
 
@@ -124,4 +118,4 @@ def format_laptime(seconds) -> str:
     minutes = int(seconds // 60)
     sec = int(seconds % 60)
     millis = int(round((seconds - int(seconds)) * 1000))
-    return f"{minutes}:{sec:02}:{millis:03}"
+    return f"{minutes}:{sec:02}.{millis:03}"
