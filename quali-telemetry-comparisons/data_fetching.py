@@ -72,7 +72,7 @@ def get_data(country: str, year: int) -> tuple[Session, Event]:
             Event object.
     """
     session_data = fastf1.get_session(year, country, 'Q')
-    session_data.load()
+    session_data.load(telemetry=True)
     event = fastf1.get_event(year, country)
 
     return session_data, event
